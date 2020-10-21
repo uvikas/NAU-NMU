@@ -1,4 +1,4 @@
-# Embed Networks
+# Networks
 
 embed_add_baseline.py - Baseline feedforward model <br />
 embed_nau.py - NAU model<br />
