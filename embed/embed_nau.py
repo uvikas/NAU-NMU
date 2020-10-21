@@ -358,14 +358,14 @@ ACTIVATIONS = {
     'Softsign': torch.nn.functional.softsign,
     'SELU': torch.selu,
     'ELU': torch.nn.functional.elu,
-    'ReLU': torch.relu,
+    'ReLU': torch.nn.ReLU,
     'linear': lambda x: x
 }
 
 class BasicLayer(ExtendedTorchModule):
     ACTIVATIONS = set(ACTIVATIONS.keys())
 
-    def __init__(self, in_features, out_features, activation='linear', bias=True, **kwargs):
+    def __init__(self, in_features, out_features, activation='ReLU', bias=True, **kwargs):
         super().__init__('basic', **kwargs)
         self.in_features = in_features
         self.out_features = out_features
@@ -464,7 +464,9 @@ class NAU(ExtendedTorchModule):
         
         self.embed  = nn.Embedding(256, 256)
 
-        self.layer_1 = GeneralizedLayer(input_size, hidden_size,
+        self.act = nn.ReLU()
+
+        self.layer_1 = GeneralizedLayer(input_size, 128,
                                         unit_name_1,
                                         writer=self.writer,
                                         name='layer_1',
@@ -475,10 +477,16 @@ class NAU(ExtendedTorchModule):
         else:
             unit_name_2 = unit_name
 
-        self.layer_2 = GeneralizedLayer(hidden_size, 1,
+        self.layer_2 = GeneralizedLayer(128, 16,
                                         'linear' if unit_name_2 in BasicLayer.ACTIVATIONS else unit_name_2,
                                         writer=self.writer,
                                         name='layer_2',
+                                        eps=eps, **kwags)
+
+        self.layer_3 = GeneralizedLayer(16, 1,
+                                        'linear' if unit_name_2 in BasicLayer.ACTIVATIONS else unit_name_2,
+                                        writer=self.writer,
+                                        name='layer_3',
                                         eps=eps, **kwags)
 
         
@@ -503,6 +511,10 @@ class NAU(ExtendedTorchModule):
         embedded = self.embed(input)
         self.writer.add_summary('embed', embedded)
 
+        self.writer.add_tensor('embedded', self.embed.weight)
+
+        #embedde = self.act(embedded)
+
         flat = torch.flatten(embedded, start_dim=1)
 
         z_1 = self.layer_1(flat)
@@ -511,6 +523,7 @@ class NAU(ExtendedTorchModule):
 
         if self.nac_mul == 'none' or self.nac_mul == 'mnac':
             z_2 = self.layer_2(z_1)
+            z_3 = self.layer_3(z_2)
         elif self.nac_mul == 'normal':
             z_2 = torch.exp(self.layer_2(torch.log(torch.abs(z_1) + self.eps)))
         elif self.nac_mul == 'safe':
@@ -522,7 +535,7 @@ class NAU(ExtendedTorchModule):
 
         self.writer.add_summary('z_2', z_2)        
 
-        return z_2
+        return z_3
 
     def extra_repr(self):
         return 'unit_name={}, input_size={}'.format(
@@ -785,9 +798,9 @@ class SimpleFunctionDatasetFork(torch.utils.data.Dataset):
         #print(embed)
         pairs = torch.randint(256, (batch_size, 2))
         #print(pairs[0])
-        sums = torch.sum(pairs, dim=1) % 256
+        sums = torch.sum(pairs, dim=1)
         sums = sums.reshape(-1, 1).float()
-        sums = (sums-0) / 512.
+        sums = (sums-0) / 256.
         #print(pairs[0])
 
         #print(inp_vec[0])
@@ -941,7 +954,7 @@ HIDDEN_SIZE=100
 NAC_MUL='none'
 OOB_MODE='clip'
 REGUALIZER_SCALING='linear'
-REGUALIZER_SCALING_START=30000
+REGUALIZER_SCALING_START=4000
 REGUALIZER_SCALING_END=2000000
 REGUALIZER_SHAPE='linear'
 MNAC_EPSILON=0
@@ -951,7 +964,7 @@ NALU_TWO_GATE=False
 NALU_MUL=False
 NALU_GATE='normal'
 OPTIMIZER='adam'
-LEARNING_RATE=1e-2
+LEARNING_RATE=1e-3
 MOMENTUM=0.5  #0.2
 NO_CUDA=False
 NAME_PREFIX='NAU'
@@ -994,8 +1007,8 @@ if __name__ == '__main__':
     dataset_test_extrapolation_data = next(iter(dataset.fork(sample_range=EXTRAPOLATION_RANGE).dataloader(batch_size=10000)))
 
     criterion = torch.nn.MSELoss()
-    #optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    optimizer = torch.optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=MOMENTUM)
+    optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
+    #optimizer = torch.optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=MOMENTUM)
 
 
     def test_model(data):
