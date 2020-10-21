@@ -16,11 +16,10 @@ def test_nau(a, b):
 def test_baseline(a, b):
     print(a, "+", b, "=", baseline_model(torch.tensor([[a, b]])).item()*512, "( expected", (a+b) % 256, ")")
 
-
-#print()
-#print("Testing embed_nau model")
-#for i in range(10):
-#    test_nau(randint(1, 256), randint(1, 256))
+print()
+print("Testing embed_nau model")
+for i in range(10):
+    test_nau(randint(1, 256), randint(1, 256))
 
 print()
 print("Testing baseline model")
