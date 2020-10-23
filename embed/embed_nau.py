@@ -477,7 +477,7 @@ class NAU(ExtendedTorchModule):
         else:
             unit_name_2 = unit_name
 
-        self.layer_2 = GeneralizedLayer(128, 16,
+        self.layer_2 = GeneralizedLayer(128, 1,
                                         'linear' if unit_name_2 in BasicLayer.ACTIVATIONS else unit_name_2,
                                         writer=self.writer,
                                         name='layer_2',
@@ -488,6 +488,8 @@ class NAU(ExtendedTorchModule):
                                         writer=self.writer,
                                         name='layer_3',
                                         eps=eps, **kwags)
+
+        self.layer_4 = nn.Linear(4, 1)
 
         
         self.reset_parameters()
@@ -523,7 +525,8 @@ class NAU(ExtendedTorchModule):
 
         if self.nac_mul == 'none' or self.nac_mul == 'mnac':
             z_2 = self.layer_2(z_1)
-            z_3 = self.layer_3(z_2)
+            #z_3 = self.layer_3(z_2)
+            #z_4 = self.layer_4(z_3)
         elif self.nac_mul == 'normal':
             z_2 = torch.exp(self.layer_2(torch.log(torch.abs(z_1) + self.eps)))
         elif self.nac_mul == 'safe':
@@ -535,7 +538,7 @@ class NAU(ExtendedTorchModule):
 
         self.writer.add_summary('z_2', z_2)        
 
-        return z_3
+        return z_2
 
     def extra_repr(self):
         return 'unit_name={}, input_size={}'.format(
@@ -800,7 +803,7 @@ class SimpleFunctionDatasetFork(torch.utils.data.Dataset):
         #print(pairs[0])
         sums = torch.sum(pairs, dim=1)
         sums = sums.reshape(-1, 1).float()
-        sums = (sums-0) / 256.
+        sums = (sums-0) / 512.
         #print(pairs[0])
 
         #print(inp_vec[0])
@@ -998,6 +1001,8 @@ model = NAU(
     nac_mul=NAC_MUL,
 )
 
+nau_loss = []
+
 if __name__ == '__main__':
 
     model.reset_parameters()
@@ -1047,6 +1052,7 @@ if __name__ == '__main__':
             r_w_scale = 1 - math.exp(-1e-5 * epoch_i)
 
         loss_train_criterion = criterion(y_train, t_train)
+        nau_loss.append(loss_train_criterion)
         loss_train_regualizer = REGUALIZER * r_w_scale * regualizers['W'] + regualizers['g'] + REGUALIZER_Z * regualizers['z'] + REGUALIZER_OOB * regualizers['W-OOB']
         loss_train = loss_train_criterion + loss_train_regualizer
 

@@ -5,35 +5,35 @@ import numpy as np
 
 
 class Baseline(nn.Module):
-    def __init__(self, input_size=2, hidden_dim=128, output_size=1):
+    def __init__(self, input_size=1, hidden_dim=15, output_size=1):
         super(Baseline, self).__init__()
-        self.embed = nn.Embedding(256,256)
-        self.linear1 = nn.Linear(512, hidden_dim)
+        self.linear1 = nn.Linear(input_size, hidden_dim)
         self.act1 = nn.Tanh()
-        self.linear2 = nn.Linear(hidden_dim, output_size)
+        self.linear2 = nn.Linear(hidden_dim, hidden_dim)
         self.act2 = nn.Tanh()
+        self.linear3 = nn.Linear(hidden_dim, output_size)
+        self.act3 = nn.Tanh()
 
     def forward(self, inp):
-        embedded = self.embed(inp)
-        flat = torch.flatten(embedded, start_dim=1)
-        z_1 = self.linear1(flat)
+        z_1 = self.linear1(inp)
         a_1 = self.act1(z_1)
         z_2 = self.linear2(a_1)
         a_2 = self.act2(z_2)
+        z_3 = self.linear3(a_2)
+        a_3 = self.act3(z_3)
+
         return a_2
 
 def dataset(batch_size):
 
-    pairs = torch.randint(256, (batch_size, 2))
-    sums = torch.sum(pairs, dim=1) 
-    sums = sums.reshape(-1, 1).float()
-    sums = (sums-0) / 512.
+    inps = torch.randint(512, (batch_size, 1)).float()
+    outs = (inps % 256) / 256.
 
-    return (torch.tensor(pairs, dtype=torch.int64), torch.tensor(sums, dtype=torch.float32))
+    return (torch.tensor(inps, dtype=torch.float32), torch.tensor(outs, dtype=torch.float32))
 
 
 EPOCHS=5000000
-LEARNING_RATE=1e-3
+LEARNING_RATE=1e-4
 MOMENTUM=0.3
 BATCH_SIZE=128
 
