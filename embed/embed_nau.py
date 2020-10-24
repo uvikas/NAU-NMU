@@ -464,7 +464,7 @@ class NAU(ExtendedTorchModule):
         
         self.embed  = nn.Embedding(256, 256)
 
-        self.act = nn.ReLU()
+        self.act1 = nn.Sigmoid()
 
         self.layer_1 = GeneralizedLayer(input_size, 128,
                                         unit_name_1,
@@ -476,18 +476,24 @@ class NAU(ExtendedTorchModule):
             unit_name_2 = unit_name[0:-3] + 'MNAC'
         else:
             unit_name_2 = unit_name
+            
+        self.act2 = nn.Sigmoid()
 
-        self.layer_2 = GeneralizedLayer(128, 1,
+        self.layer_2 = GeneralizedLayer(128, 16,
                                         'linear' if unit_name_2 in BasicLayer.ACTIVATIONS else unit_name_2,
                                         writer=self.writer,
                                         name='layer_2',
                                         eps=eps, **kwags)
-
+        
+        self.act3 = nn.Sigmoid()
+    
         self.layer_3 = GeneralizedLayer(16, 1,
                                         'linear' if unit_name_2 in BasicLayer.ACTIVATIONS else unit_name_2,
                                         writer=self.writer,
                                         name='layer_3',
                                         eps=eps, **kwags)
+
+        self.act4 = nn.Sigmoid()
 
         self.layer_4 = nn.Linear(4, 1)
 
@@ -520,12 +526,22 @@ class NAU(ExtendedTorchModule):
         flat = torch.flatten(embedded, start_dim=1)
 
         z_1 = self.layer_1(flat)
+        a_1 = self.act1(z_1)
+        
         self.z_1_stored = z_1
         self.writer.add_summary('z_1', z_1)
-
+        
+        z_2 = self.layer_2(a_1)
+        a_2 = self.act2(z_2)
+        
+        z_3 = self.layer_3(a_2)
+        a_3 = self.act3(z_3)
+        """
         if self.nac_mul == 'none' or self.nac_mul == 'mnac':
-            z_2 = self.layer_2(z_1)
+            #z_2 = self.layer_2(a_1)
+            #a_2 = self.act2(z_2)
             #z_3 = self.layer_3(z_2)
+            #a_3 = self.act3(z_3)
             #z_4 = self.layer_4(z_3)
         elif self.nac_mul == 'normal':
             z_2 = torch.exp(self.layer_2(torch.log(torch.abs(z_1) + self.eps)))
@@ -536,9 +552,10 @@ class NAU(ExtendedTorchModule):
         else:
             raise ValueError(f'Unsupported nac_mul option ({self.nac_mul})')
 
-        self.writer.add_summary('z_2', z_2)        
+        self.writer.add_summary('z_2', z_2)
+        """
 
-        return z_2
+        return a_3
 
     def extra_repr(self):
         return 'unit_name={}, input_size={}'.format(
@@ -801,9 +818,9 @@ class SimpleFunctionDatasetFork(torch.utils.data.Dataset):
         #print(embed)
         pairs = torch.randint(256, (batch_size, 2))
         #print(pairs[0])
-        sums = torch.sum(pairs, dim=1)
+        sums = torch.sum(pairs, dim=1) % 256
         sums = sums.reshape(-1, 1).float()
-        sums = (sums-0) / 512.
+        sums = (sums-0) / 256.
         #print(pairs[0])
 
         #print(inp_vec[0])
@@ -1054,7 +1071,7 @@ if __name__ == '__main__':
         loss_train_criterion = criterion(y_train, t_train)
         nau_loss.append(loss_train_criterion)
         loss_train_regualizer = REGUALIZER * r_w_scale * regualizers['W'] + regualizers['g'] + REGUALIZER_Z * regualizers['z'] + REGUALIZER_OOB * regualizers['W-OOB']
-        loss_train = loss_train_criterion + loss_train_regualizer
+        loss_train = loss_train_criterion
 
         # Log loss
         if VERBOSE or epoch_i % 1000 == 0:
