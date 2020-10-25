@@ -464,7 +464,7 @@ class NAU(ExtendedTorchModule):
         
         self.embed  = nn.Embedding(256, 256)
 
-        self.act1 = nn.Sigmoid()
+        self.act1 = nn.ReLU()
 
         self.layer_1 = GeneralizedLayer(input_size, 128,
                                         unit_name_1,
@@ -477,15 +477,15 @@ class NAU(ExtendedTorchModule):
         else:
             unit_name_2 = unit_name
             
-        self.act2 = nn.Sigmoid()
+        self.act2 = nn.ReLU()
 
-        self.layer_2 = GeneralizedLayer(128, 16,
+        self.layer_2 = GeneralizedLayer(128, 1,
                                         'linear' if unit_name_2 in BasicLayer.ACTIVATIONS else unit_name_2,
                                         writer=self.writer,
                                         name='layer_2',
                                         eps=eps, **kwags)
         
-        self.act3 = nn.Sigmoid()
+        self.act3 = nn.ReLU()
     
         self.layer_3 = GeneralizedLayer(16, 1,
                                         'linear' if unit_name_2 in BasicLayer.ACTIVATIONS else unit_name_2,
@@ -493,7 +493,7 @@ class NAU(ExtendedTorchModule):
                                         name='layer_3',
                                         eps=eps, **kwags)
 
-        self.act4 = nn.Sigmoid()
+        self.act4 = nn.ReLU()
 
         self.layer_4 = nn.Linear(4, 1)
 
@@ -531,15 +531,14 @@ class NAU(ExtendedTorchModule):
         self.z_1_stored = z_1
         self.writer.add_summary('z_1', z_1)
         
-        z_2 = self.layer_2(a_1)
-        a_2 = self.act2(z_2)
+        #z_2 = self.layer_2(a_1)
+        #a_2 = self.act2(z_2)
         
-        z_3 = self.layer_3(a_2)
-        a_3 = self.act3(z_3)
-        """
+        #z_3 = self.layer_3(a_2)
+        #a_3 = self.act3(z_3)
         if self.nac_mul == 'none' or self.nac_mul == 'mnac':
-            #z_2 = self.layer_2(a_1)
-            #a_2 = self.act2(z_2)
+            z_2 = self.layer_2(a_1)
+            a_2 = self.act2(z_2)
             #z_3 = self.layer_3(z_2)
             #a_3 = self.act3(z_3)
             #z_4 = self.layer_4(z_3)
@@ -553,9 +552,8 @@ class NAU(ExtendedTorchModule):
             raise ValueError(f'Unsupported nac_mul option ({self.nac_mul})')
 
         self.writer.add_summary('z_2', z_2)
-        """
 
-        return a_3
+        return a_2
 
     def extra_repr(self):
         return 'unit_name={}, input_size={}'.format(
