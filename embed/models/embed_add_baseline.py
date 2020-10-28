@@ -24,7 +24,7 @@ class Baseline(nn.Module):
         a_2 = self.act2(z_2)
         z_3 = self.linear3(a_2)
         a_3 = self.act3(z_3)
-        return z_3
+        return a_3
 
 def dataset(max_num, batch_size):
 
