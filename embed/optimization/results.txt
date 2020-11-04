@@ -1,0 +1,1080 @@
+Dim:5 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.104058, Baseline:0.164659, NAU - Baseline: -0.060600
+Loss after 1000 epochs:
+NAU:0.082955, Baseline:0.093617, NAU - Baseline: -0.010662
+
+Dim:5 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.099697, Baseline:0.092837, NAU - Baseline: 0.006860
+Loss after 1000 epochs:
+NAU:0.088514, Baseline:0.077106, NAU - Baseline: 0.011409
+
+Dim:5 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.095275, Baseline:0.095420, NAU - Baseline: -0.000145
+Loss after 1000 epochs:
+NAU:0.083765, Baseline:0.080406, NAU - Baseline: 0.003359
+
+Dim:5 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.097779, Baseline:0.111193, NAU - Baseline: -0.013414
+Loss after 1000 epochs:
+NAU:0.083914, Baseline:0.088229, NAU - Baseline: -0.004315
+
+Dim:5 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.096876, Baseline:0.096946, NAU - Baseline: -0.000071
+Loss after 1000 epochs:
+NAU:0.084653, Baseline:0.083205, NAU - Baseline: 0.001448
+
+Dim:5 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.095200, Baseline:0.089743, NAU - Baseline: 0.005457
+Loss after 1000 epochs:
+NAU:0.086465, Baseline:0.081382, NAU - Baseline: 0.005083
+
+Dim:10 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.111349, Baseline:0.089180, NAU - Baseline: 0.022169
+Loss after 1000 epochs:
+NAU:0.083614, Baseline:0.082431, NAU - Baseline: 0.001183
+
+Dim:10 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.101501, Baseline:0.138243, NAU - Baseline: -0.036742
+Loss after 1000 epochs:
+NAU:0.084874, Baseline:0.087373, NAU - Baseline: -0.002499
+
+Dim:10 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.103946, Baseline:0.141224, NAU - Baseline: -0.037278
+Loss after 1000 epochs:
+NAU:0.084085, Baseline:0.093169, NAU - Baseline: -0.009084
+
+Dim:10 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.112852, Baseline:0.113251, NAU - Baseline: -0.000400
+Loss after 1000 epochs:
+NAU:0.084821, Baseline:0.085141, NAU - Baseline: -0.000320
+
+Dim:10 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.113228, Baseline:0.094097, NAU - Baseline: 0.019131
+Loss after 1000 epochs:
+NAU:0.089123, Baseline:0.081824, NAU - Baseline: 0.007299
+
+Dim:10 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.093416, Baseline:0.134581, NAU - Baseline: -0.041165
+Loss after 1000 epochs:
+NAU:0.085491, Baseline:0.086868, NAU - Baseline: -0.001377
+
+Dim:25 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.098667, Baseline:0.091693, NAU - Baseline: 0.006974
+Loss after 1000 epochs:
+NAU:0.087507, Baseline:0.085699, NAU - Baseline: 0.001808
+
+Dim:25 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.102404, Baseline:0.104055, NAU - Baseline: -0.001651
+Loss after 1000 epochs:
+NAU:0.086044, Baseline:0.086182, NAU - Baseline: -0.000138
+
+Dim:25 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.124808, Baseline:0.110258, NAU - Baseline: 0.014550
+Loss after 1000 epochs:
+NAU:0.087267, Baseline:0.084048, NAU - Baseline: 0.003220
+
+Dim:25 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.127106, Baseline:0.175735, NAU - Baseline: -0.048629
+Loss after 1000 epochs:
+NAU:0.087740, Baseline:0.094920, NAU - Baseline: -0.007180
+
+Dim:25 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.102257, Baseline:0.093607, NAU - Baseline: 0.008650
+Loss after 1000 epochs:
+NAU:0.084346, Baseline:0.085634, NAU - Baseline: -0.001289
+
+Dim:25 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.096828, Baseline:0.116673, NAU - Baseline: -0.019845
+Loss after 1000 epochs:
+NAU:0.088983, Baseline:0.089488, NAU - Baseline: -0.000505
+
+Dim:50 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.096576, Baseline:0.094031, NAU - Baseline: 0.002544
+Loss after 1000 epochs:
+NAU:0.083178, Baseline:0.080840, NAU - Baseline: 0.002338
+
+Dim:50 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.124163, Baseline:0.152106, NAU - Baseline: -0.027943
+Loss after 1000 epochs:
+NAU:0.084268, Baseline:0.088486, NAU - Baseline: -0.004218
+
+Dim:50 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.141977, Baseline:0.092841, NAU - Baseline: 0.049136
+Loss after 1000 epochs:
+NAU:0.086937, Baseline:0.086355, NAU - Baseline: 0.000582
+
+Dim:50 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.098728, Baseline:0.089044, NAU - Baseline: 0.009684
+Loss after 1000 epochs:
+NAU:0.084924, Baseline:0.086266, NAU - Baseline: -0.001343
+
+Dim:50 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.114418, Baseline:0.098409, NAU - Baseline: 0.016009
+Loss after 1000 epochs:
+NAU:0.082600, Baseline:0.086610, NAU - Baseline: -0.004010
+
+Dim:50 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.114881, Baseline:0.115943, NAU - Baseline: -0.001061
+Loss after 1000 epochs:
+NAU:0.087332, Baseline:0.086801, NAU - Baseline: 0.000530
+
+Dim:100 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.107895, Baseline:0.217319, NAU - Baseline: -0.109425
+Loss after 1000 epochs:
+NAU:0.089016, Baseline:0.105309, NAU - Baseline: -0.016292
+
+Dim:100 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.103923, Baseline:0.088352, NAU - Baseline: 0.015571
+Loss after 1000 epochs:
+NAU:0.085158, Baseline:0.084871, NAU - Baseline: 0.000287
+
+Dim:100 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.146908, Baseline:0.111564, NAU - Baseline: 0.035344
+Loss after 1000 epochs:
+NAU:0.083386, Baseline:0.085826, NAU - Baseline: -0.002439
+
+Dim:100 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.154218, Baseline:0.113779, NAU - Baseline: 0.040439
+Loss after 1000 epochs:
+NAU:0.088884, Baseline:0.085230, NAU - Baseline: 0.003655
+
+Dim:100 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.111149, Baseline:0.115422, NAU - Baseline: -0.004274
+Loss after 1000 epochs:
+NAU:0.084487, Baseline:0.084242, NAU - Baseline: 0.000245
+
+Dim:100 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.101416, Baseline:0.116586, NAU - Baseline: -0.015170
+Loss after 1000 epochs:
+NAU:0.083446, Baseline:0.086577, NAU - Baseline: -0.003132
+
+Dim:200 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.100815, Baseline:0.128146, NAU - Baseline: -0.027330
+Loss after 1000 epochs:
+NAU:0.084227, Baseline:0.087227, NAU - Baseline: -0.002999
+
+Dim:200 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.110369, Baseline:0.088183, NAU - Baseline: 0.022186
+Loss after 1000 epochs:
+NAU:0.085231, Baseline:0.080274, NAU - Baseline: 0.004957
+
+Dim:200 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.127486, Baseline:0.115946, NAU - Baseline: 0.011540
+Loss after 1000 epochs:
+NAU:0.086816, Baseline:0.087102, NAU - Baseline: -0.000287
+
+Dim:200 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.102511, Baseline:0.118996, NAU - Baseline: -0.016486
+Loss after 1000 epochs:
+NAU:0.089683, Baseline:0.087845, NAU - Baseline: 0.001838
+
+Dim:200 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.130168, Baseline:0.104440, NAU - Baseline: 0.025728
+Loss after 1000 epochs:
+NAU:0.085808, Baseline:0.083763, NAU - Baseline: 0.002044
+
+Dim:200 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.111756, Baseline:0.099784, NAU - Baseline: 0.011972
+Loss after 1000 epochs:
+NAU:0.089084, Baseline:0.084210, NAU - Baseline: 0.004874
+
+Dim:5 5 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.100950, Baseline:0.168241, NAU - Baseline: -0.067291
+Loss after 1000 epochs:
+NAU:0.084701, Baseline:0.095076, NAU - Baseline: -0.010375
+
+Dim:5 5 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.096535, Baseline:0.099137, NAU - Baseline: -0.002602
+Loss after 1000 epochs:
+NAU:0.085852, Baseline:0.084991, NAU - Baseline: 0.000862
+
+Dim:5 5 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.092408, Baseline:0.107430, NAU - Baseline: -0.015022
+Loss after 1000 epochs:
+NAU:0.083070, Baseline:0.088640, NAU - Baseline: -0.005570
+
+Dim:5 5 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.093967, Baseline:0.167660, NAU - Baseline: -0.073693
+Loss after 1000 epochs:
+NAU:0.087292, Baseline:0.119704, NAU - Baseline: -0.032412
+
+Dim:5 5 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.099835, Baseline:0.097624, NAU - Baseline: 0.002211
+Loss after 1000 epochs:
+NAU:0.080166, Baseline:0.084363, NAU - Baseline: -0.004197
+
+Dim:5 5 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.094588, Baseline:0.202363, NAU - Baseline: -0.107775
+Loss after 1000 epochs:
+NAU:0.084767, Baseline:0.113186, NAU - Baseline: -0.028419
+
+Dim:5 10 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.093953, Baseline:0.147600, NAU - Baseline: -0.053648
+Loss after 1000 epochs:
+NAU:0.086800, Baseline:0.096504, NAU - Baseline: -0.009704
+
+Dim:5 10 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.098873, Baseline:0.124945, NAU - Baseline: -0.026073
+Loss after 1000 epochs:
+NAU:0.083997, Baseline:0.089424, NAU - Baseline: -0.005428
+
+Dim:5 10 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.088963, Baseline:0.154518, NAU - Baseline: -0.065555
+Loss after 1000 epochs:
+NAU:0.084488, Baseline:0.104815, NAU - Baseline: -0.020326
+
+Dim:5 10 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.096058, Baseline:0.554403, NAU - Baseline: -0.458345
+Loss after 1000 epochs:
+NAU:0.087081, Baseline:0.487880, NAU - Baseline: -0.400799
+
+Dim:5 10 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.098379, Baseline:0.161831, NAU - Baseline: -0.063453
+Loss after 1000 epochs:
+NAU:0.083802, Baseline:0.113770, NAU - Baseline: -0.029969
+
+Dim:5 10 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.106159, Baseline:0.105455, NAU - Baseline: 0.000704
+Loss after 1000 epochs:
+NAU:0.081819, Baseline:0.086642, NAU - Baseline: -0.004823
+
+Dim:5 25 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.092054, Baseline:0.368195, NAU - Baseline: -0.276141
+Loss after 1000 epochs:
+NAU:0.086124, Baseline:0.173619, NAU - Baseline: -0.087495
+
+Dim:5 25 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.094691, Baseline:0.200380, NAU - Baseline: -0.105689
+Loss after 1000 epochs:
+NAU:0.087991, Baseline:0.118062, NAU - Baseline: -0.030072
+
+Dim:5 25 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.096240, Baseline:0.092581, NAU - Baseline: 0.003660
+Loss after 1000 epochs:
+NAU:0.087019, Baseline:0.086699, NAU - Baseline: 0.000320
+
+Dim:5 25 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.104461, Baseline:0.106851, NAU - Baseline: -0.002390
+Loss after 1000 epochs:
+NAU:0.085859, Baseline:0.086268, NAU - Baseline: -0.000409
+
+Dim:5 25 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.114169, Baseline:0.088602, NAU - Baseline: 0.025567
+Loss after 1000 epochs:
+NAU:0.084703, Baseline:0.080827, NAU - Baseline: 0.003876
+
+Dim:5 25 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.100521, Baseline:0.168544, NAU - Baseline: -0.068024
+Loss after 1000 epochs:
+NAU:0.088471, Baseline:0.103991, NAU - Baseline: -0.015520
+
+Dim:5 50 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.097123, Baseline:0.098150, NAU - Baseline: -0.001027
+Loss after 1000 epochs:
+NAU:0.084892, Baseline:0.084960, NAU - Baseline: -0.000067
+
+Dim:5 50 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.094590, Baseline:0.504616, NAU - Baseline: -0.410026
+Loss after 1000 epochs:
+NAU:0.081202, Baseline:0.366357, NAU - Baseline: -0.285154
+
+Dim:5 50 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.101365, Baseline:0.193008, NAU - Baseline: -0.091643
+Loss after 1000 epochs:
+NAU:0.086350, Baseline:0.101579, NAU - Baseline: -0.015229
+
+Dim:5 50 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.099061, Baseline:0.160611, NAU - Baseline: -0.061550
+Loss after 1000 epochs:
+NAU:0.084956, Baseline:0.101588, NAU - Baseline: -0.016632
+
+Dim:5 50 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.092142, Baseline:0.126132, NAU - Baseline: -0.033990
+Loss after 1000 epochs:
+NAU:0.085728, Baseline:0.085172, NAU - Baseline: 0.000556
+
+Dim:5 50 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.101693, Baseline:0.102097, NAU - Baseline: -0.000404
+Loss after 1000 epochs:
+NAU:0.085786, Baseline:0.087786, NAU - Baseline: -0.002000
+
+Dim:5 100 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.096433, Baseline:0.128376, NAU - Baseline: -0.031944
+Loss after 1000 epochs:
+NAU:0.080762, Baseline:0.088054, NAU - Baseline: -0.007292
+
+Dim:5 100 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.094387, Baseline:0.111489, NAU - Baseline: -0.017103
+Loss after 1000 epochs:
+NAU:0.082848, Baseline:0.083191, NAU - Baseline: -0.000342
+
+Dim:5 100 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.095757, Baseline:0.091178, NAU - Baseline: 0.004579
+Loss after 1000 epochs:
+NAU:0.087119, Baseline:0.086194, NAU - Baseline: 0.000925
+
+Dim:5 100 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.096413, Baseline:0.165403, NAU - Baseline: -0.068990
+Loss after 1000 epochs:
+NAU:0.089326, Baseline:0.097658, NAU - Baseline: -0.008332
+
+Dim:5 100 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.094378, Baseline:0.115119, NAU - Baseline: -0.020741
+Loss after 1000 epochs:
+NAU:0.086040, Baseline:0.089009, NAU - Baseline: -0.002970
+
+Dim:5 100 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.101625, Baseline:0.130236, NAU - Baseline: -0.028611
+Loss after 1000 epochs:
+NAU:0.088032, Baseline:0.093375, NAU - Baseline: -0.005342
+
+Dim:5 200 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.092839, Baseline:0.092032, NAU - Baseline: 0.000807
+Loss after 1000 epochs:
+NAU:0.083543, Baseline:0.085302, NAU - Baseline: -0.001758
+
+Dim:5 200 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.090962, Baseline:0.092897, NAU - Baseline: -0.001935
+Loss after 1000 epochs:
+NAU:0.082928, Baseline:0.087450, NAU - Baseline: -0.004521
+
+Dim:5 200 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.093561, Baseline:0.188851, NAU - Baseline: -0.095290
+Loss after 1000 epochs:
+NAU:0.081791, Baseline:0.115644, NAU - Baseline: -0.033852
+
+Dim:5 200 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.100710, Baseline:0.147275, NAU - Baseline: -0.046565
+Loss after 1000 epochs:
+NAU:0.087708, Baseline:0.093926, NAU - Baseline: -0.006218
+
+Dim:5 200 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.092777, Baseline:0.145483, NAU - Baseline: -0.052705
+Loss after 1000 epochs:
+NAU:0.086314, Baseline:0.093187, NAU - Baseline: -0.006873
+
+Dim:5 200 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.096603, Baseline:0.156885, NAU - Baseline: -0.060283
+Loss after 1000 epochs:
+NAU:0.082524, Baseline:0.100995, NAU - Baseline: -0.018471
+
+Dim:10 5 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.101113, Baseline:0.122959, NAU - Baseline: -0.021846
+Loss after 1000 epochs:
+NAU:0.088843, Baseline:0.089813, NAU - Baseline: -0.000970
+
+Dim:10 5 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.095270, Baseline:0.086330, NAU - Baseline: 0.008939
+Loss after 1000 epochs:
+NAU:0.084004, Baseline:0.080545, NAU - Baseline: 0.003459
+
+Dim:10 5 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.096060, Baseline:0.091709, NAU - Baseline: 0.004351
+Loss after 1000 epochs:
+NAU:0.084617, Baseline:0.085275, NAU - Baseline: -0.000658
+
+Dim:10 5 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.094815, Baseline:0.229623, NAU - Baseline: -0.134808
+Loss after 1000 epochs:
+NAU:0.082896, Baseline:0.139129, NAU - Baseline: -0.056233
+
+Dim:10 5 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.094182, Baseline:0.121767, NAU - Baseline: -0.027585
+Loss after 1000 epochs:
+NAU:0.084956, Baseline:0.091952, NAU - Baseline: -0.006997
+
+Dim:10 5 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.097026, Baseline:0.403071, NAU - Baseline: -0.306045
+Loss after 1000 epochs:
+NAU:0.086167, Baseline:0.180007, NAU - Baseline: -0.093840
+
+Dim:10 10 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.098129, Baseline:0.089299, NAU - Baseline: 0.008830
+Loss after 1000 epochs:
+NAU:0.084154, Baseline:0.084668, NAU - Baseline: -0.000513
+
+Dim:10 10 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.097363, Baseline:0.085477, NAU - Baseline: 0.011886
+Loss after 1000 epochs:
+NAU:0.084257, Baseline:0.083742, NAU - Baseline: 0.000515
+
+Dim:10 10 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.096164, Baseline:0.404050, NAU - Baseline: -0.307886
+Loss after 1000 epochs:
+NAU:0.086126, Baseline:0.262671, NAU - Baseline: -0.176546
+
+Dim:10 10 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.128061, Baseline:0.240454, NAU - Baseline: -0.112393
+Loss after 1000 epochs:
+NAU:0.085161, Baseline:0.145943, NAU - Baseline: -0.060782
+
+Dim:10 10 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.094100, Baseline:0.153934, NAU - Baseline: -0.059834
+Loss after 1000 epochs:
+NAU:0.086155, Baseline:0.103166, NAU - Baseline: -0.017011
+
+Dim:10 10 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.099242, Baseline:0.120157, NAU - Baseline: -0.020914
+Loss after 1000 epochs:
+NAU:0.087677, Baseline:0.095908, NAU - Baseline: -0.008232
+
+Dim:10 25 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.095626, Baseline:0.092889, NAU - Baseline: 0.002737
+Loss after 1000 epochs:
+NAU:0.082872, Baseline:0.081342, NAU - Baseline: 0.001530
+
+Dim:10 25 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.104465, Baseline:0.104194, NAU - Baseline: 0.000272
+Loss after 1000 epochs:
+NAU:0.088200, Baseline:0.088461, NAU - Baseline: -0.000262
+
+Dim:10 25 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.118624, Baseline:0.131663, NAU - Baseline: -0.013039
+Loss after 1000 epochs:
+NAU:0.080517, Baseline:0.093872, NAU - Baseline: -0.013355
+
+Dim:10 25 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.101937, Baseline:0.131463, NAU - Baseline: -0.029527
+Loss after 1000 epochs:
+NAU:0.086212, Baseline:0.095966, NAU - Baseline: -0.009754
+
+Dim:10 25 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.097463, Baseline:0.124735, NAU - Baseline: -0.027272
+Loss after 1000 epochs:
+NAU:0.081336, Baseline:0.088156, NAU - Baseline: -0.006820
+
+Dim:10 25 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.095889, Baseline:0.227358, NAU - Baseline: -0.131469
+Loss after 1000 epochs:
+NAU:0.084135, Baseline:0.133692, NAU - Baseline: -0.049557
+
+Dim:10 50 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.099983, Baseline:0.117763, NAU - Baseline: -0.017780
+Loss after 1000 epochs:
+NAU:0.081901, Baseline:0.086489, NAU - Baseline: -0.004588
+
+Dim:10 50 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.102667, Baseline:0.098200, NAU - Baseline: 0.004467
+Loss after 1000 epochs:
+NAU:0.085558, Baseline:0.086446, NAU - Baseline: -0.000888
+
+Dim:10 50 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.104996, Baseline:0.140404, NAU - Baseline: -0.035407
+Loss after 1000 epochs:
+NAU:0.085839, Baseline:0.095377, NAU - Baseline: -0.009538
+
+Dim:10 50 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.097768, Baseline:0.098741, NAU - Baseline: -0.000973
+Loss after 1000 epochs:
+NAU:0.088322, Baseline:0.085606, NAU - Baseline: 0.002716
+
+Dim:10 50 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.091943, Baseline:0.108364, NAU - Baseline: -0.016421
+Loss after 1000 epochs:
+NAU:0.086164, Baseline:0.088792, NAU - Baseline: -0.002628
+
+Dim:10 50 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.097667, Baseline:0.201383, NAU - Baseline: -0.103716
+Loss after 1000 epochs:
+NAU:0.086301, Baseline:0.114912, NAU - Baseline: -0.028610
+
+Dim:10 100 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.092684, Baseline:0.086276, NAU - Baseline: 0.006408
+Loss after 1000 epochs:
+NAU:0.083505, Baseline:0.083834, NAU - Baseline: -0.000329
+
+Dim:10 100 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.100322, Baseline:0.144149, NAU - Baseline: -0.043827
+Loss after 1000 epochs:
+NAU:0.088413, Baseline:0.100207, NAU - Baseline: -0.011794
+
+Dim:10 100 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.099320, Baseline:0.099456, NAU - Baseline: -0.000136
+Loss after 1000 epochs:
+NAU:0.086171, Baseline:0.084372, NAU - Baseline: 0.001799
+
+Dim:10 100 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.092701, Baseline:0.136179, NAU - Baseline: -0.043478
+Loss after 1000 epochs:
+NAU:0.080399, Baseline:0.091710, NAU - Baseline: -0.011311
+
+Dim:10 100 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.093773, Baseline:0.148752, NAU - Baseline: -0.054979
+Loss after 1000 epochs:
+NAU:0.087603, Baseline:0.096165, NAU - Baseline: -0.008562
+
+Dim:10 100 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.094767, Baseline:0.196208, NAU - Baseline: -0.101441
+Loss after 1000 epochs:
+NAU:0.083473, Baseline:0.112040, NAU - Baseline: -0.028567
+
+Dim:10 200 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.097135, Baseline:0.086584, NAU - Baseline: 0.010550
+Loss after 1000 epochs:
+NAU:0.090418, Baseline:0.086808, NAU - Baseline: 0.003610
+
+Dim:10 200 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.091667, Baseline:0.387670, NAU - Baseline: -0.296003
+Loss after 1000 epochs:
+NAU:0.081064, Baseline:0.248900, NAU - Baseline: -0.167836
+
+Dim:10 200 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.099408, Baseline:0.161906, NAU - Baseline: -0.062499
+Loss after 1000 epochs:
+NAU:0.088839, Baseline:0.093661, NAU - Baseline: -0.004821
+
+Dim:10 200 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.101182, Baseline:0.100438, NAU - Baseline: 0.000744
+Loss after 1000 epochs:
+NAU:0.088589, Baseline:0.083552, NAU - Baseline: 0.005037
+
+Dim:10 200 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.097332, Baseline:0.125007, NAU - Baseline: -0.027675
+Loss after 1000 epochs:
+NAU:0.087301, Baseline:0.091501, NAU - Baseline: -0.004200
+
+Dim:10 200 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.099511, Baseline:0.127403, NAU - Baseline: -0.027892
+Loss after 1000 epochs:
+NAU:0.083483, Baseline:0.089340, NAU - Baseline: -0.005857
+
+Dim:25 5 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.098324, Baseline:0.087109, NAU - Baseline: 0.011215
+Loss after 1000 epochs:
+NAU:0.083910, Baseline:0.083173, NAU - Baseline: 0.000738
+
+Dim:25 5 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.101356, Baseline:0.120271, NAU - Baseline: -0.018915
+Loss after 1000 epochs:
+NAU:0.083918, Baseline:0.084515, NAU - Baseline: -0.000597
+
+Dim:25 5 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.111605, Baseline:0.095810, NAU - Baseline: 0.015795
+Loss after 1000 epochs:
+NAU:0.084144, Baseline:0.081709, NAU - Baseline: 0.002435
+
+Dim:25 5 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.097102, Baseline:0.166040, NAU - Baseline: -0.068938
+Loss after 1000 epochs:
+NAU:0.087574, Baseline:0.100409, NAU - Baseline: -0.012835
+
+Dim:25 5 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.100091, Baseline:0.101723, NAU - Baseline: -0.001632
+Loss after 1000 epochs:
+NAU:0.084573, Baseline:0.089060, NAU - Baseline: -0.004487
+
+Dim:25 5 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.095225, Baseline:0.219253, NAU - Baseline: -0.124028
+Loss after 1000 epochs:
+NAU:0.084272, Baseline:0.120926, NAU - Baseline: -0.036655
+
+Dim:25 10 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.093137, Baseline:0.141219, NAU - Baseline: -0.048082
+Loss after 1000 epochs:
+NAU:0.091109, Baseline:0.091480, NAU - Baseline: -0.000371
+
+Dim:25 10 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.113319, Baseline:0.116494, NAU - Baseline: -0.003175
+Loss after 1000 epochs:
+NAU:0.087715, Baseline:0.089696, NAU - Baseline: -0.001982
+
+Dim:25 10 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.116868, Baseline:0.311117, NAU - Baseline: -0.194249
+Loss after 1000 epochs:
+NAU:0.082748, Baseline:0.160030, NAU - Baseline: -0.077282
+
+Dim:25 10 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.113994, Baseline:0.292440, NAU - Baseline: -0.178446
+Loss after 1000 epochs:
+NAU:0.085425, Baseline:0.155976, NAU - Baseline: -0.070551
+
+Dim:25 10 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.095647, Baseline:0.199282, NAU - Baseline: -0.103635
+Loss after 1000 epochs:
+NAU:0.084980, Baseline:0.106122, NAU - Baseline: -0.021142
+
+Dim:25 10 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.096708, Baseline:0.148466, NAU - Baseline: -0.051758
+Loss after 1000 epochs:
+NAU:0.081426, Baseline:0.089767, NAU - Baseline: -0.008341
+
+Dim:25 25 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.105184, Baseline:0.104149, NAU - Baseline: 0.001035
+Loss after 1000 epochs:
+NAU:0.084877, Baseline:0.086119, NAU - Baseline: -0.001242
+
+Dim:25 25 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.117158, Baseline:0.126622, NAU - Baseline: -0.009464
+Loss after 1000 epochs:
+NAU:0.086635, Baseline:0.086661, NAU - Baseline: -0.000026
+
+Dim:25 25 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.165490, Baseline:0.172336, NAU - Baseline: -0.006846
+Loss after 1000 epochs:
+NAU:0.088164, Baseline:0.094231, NAU - Baseline: -0.006067
+
+Dim:25 25 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.111118, Baseline:0.111757, NAU - Baseline: -0.000639
+Loss after 1000 epochs:
+NAU:0.082496, Baseline:0.085249, NAU - Baseline: -0.002753
+
+Dim:25 25 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.098598, Baseline:0.113798, NAU - Baseline: -0.015200
+Loss after 1000 epochs:
+NAU:0.083700, Baseline:0.086019, NAU - Baseline: -0.002319
+
+Dim:25 25 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.092139, Baseline:0.109065, NAU - Baseline: -0.016926
+Loss after 1000 epochs:
+NAU:0.086619, Baseline:0.085962, NAU - Baseline: 0.000658
+
+Dim:25 50 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.097292, Baseline:0.162542, NAU - Baseline: -0.065250
+Loss after 1000 epochs:
+NAU:0.085105, Baseline:0.102863, NAU - Baseline: -0.017758
+
+Dim:25 50 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.115717, Baseline:0.289709, NAU - Baseline: -0.173992
+Loss after 1000 epochs:
+NAU:0.088474, Baseline:0.138494, NAU - Baseline: -0.050020
+
+Dim:25 50 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.104539, Baseline:0.096064, NAU - Baseline: 0.008475
+Loss after 1000 epochs:
+NAU:0.082877, Baseline:0.084269, NAU - Baseline: -0.001392
+
+Dim:25 50 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.108102, Baseline:0.154075, NAU - Baseline: -0.045973
+Loss after 1000 epochs:
+NAU:0.086914, Baseline:0.093306, NAU - Baseline: -0.006392
+
+Dim:25 50 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.110954, Baseline:0.117960, NAU - Baseline: -0.007006
+Loss after 1000 epochs:
+NAU:0.087234, Baseline:0.087818, NAU - Baseline: -0.000584
+
+Dim:25 50 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.107622, Baseline:0.137055, NAU - Baseline: -0.029433
+Loss after 1000 epochs:
+NAU:0.088060, Baseline:0.097355, NAU - Baseline: -0.009295
+
+Dim:25 100 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.093480, Baseline:0.119623, NAU - Baseline: -0.026143
+Loss after 1000 epochs:
+NAU:0.082095, Baseline:0.090907, NAU - Baseline: -0.008813
+
+Dim:25 100 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.109215, Baseline:0.149886, NAU - Baseline: -0.040672
+Loss after 1000 epochs:
+NAU:0.084292, Baseline:0.088943, NAU - Baseline: -0.004651
+
+Dim:25 100 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.110717, Baseline:0.171617, NAU - Baseline: -0.060900
+Loss after 1000 epochs:
+NAU:0.085247, Baseline:0.096510, NAU - Baseline: -0.011264
+
+Dim:25 100 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.101419, Baseline:0.132290, NAU - Baseline: -0.030871
+Loss after 1000 epochs:
+NAU:0.084617, Baseline:0.092109, NAU - Baseline: -0.007492
+
+Dim:25 100 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.105142, Baseline:0.174428, NAU - Baseline: -0.069286
+Loss after 1000 epochs:
+NAU:0.085269, Baseline:0.100285, NAU - Baseline: -0.015016
+
+Dim:25 100 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.110255, Baseline:0.120392, NAU - Baseline: -0.010137
+Loss after 1000 epochs:
+NAU:0.086765, Baseline:0.088825, NAU - Baseline: -0.002060
+
+Dim:25 200 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.091405, Baseline:0.201847, NAU - Baseline: -0.110442
+Loss after 1000 epochs:
+NAU:0.083146, Baseline:0.104827, NAU - Baseline: -0.021681
+
+Dim:25 200 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.096632, Baseline:0.104343, NAU - Baseline: -0.007711
+Loss after 1000 epochs:
+NAU:0.082324, Baseline:0.087327, NAU - Baseline: -0.005003
+
+Dim:25 200 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.095704, Baseline:0.159041, NAU - Baseline: -0.063337
+Loss after 1000 epochs:
+NAU:0.085214, Baseline:0.095351, NAU - Baseline: -0.010137
+
+Dim:25 200 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.108245, Baseline:0.141264, NAU - Baseline: -0.033019
+Loss after 1000 epochs:
+NAU:0.087079, Baseline:0.087613, NAU - Baseline: -0.000534
+
+Dim:25 200 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.096640, Baseline:0.146769, NAU - Baseline: -0.050129
+Loss after 1000 epochs:
+NAU:0.082621, Baseline:0.094086, NAU - Baseline: -0.011466
+
+Dim:25 200 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.091566, Baseline:0.124349, NAU - Baseline: -0.032783
+Loss after 1000 epochs:
+NAU:0.085410, Baseline:0.087756, NAU - Baseline: -0.002346
+
+Dim:50 5 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.106871, Baseline:0.698492, NAU - Baseline: -0.591621
+Loss after 1000 epochs:
+NAU:0.085110, Baseline:0.416916, NAU - Baseline: -0.331806
+
+Dim:50 5 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.096434, Baseline:0.408644, NAU - Baseline: -0.312210
+Loss after 1000 epochs:
+NAU:0.082185, Baseline:0.208220, NAU - Baseline: -0.126035
+
+Dim:50 5 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.117839, Baseline:0.124479, NAU - Baseline: -0.006639
+Loss after 1000 epochs:
+NAU:0.084794, Baseline:0.092331, NAU - Baseline: -0.007537
+
+Dim:50 5 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.089069, Baseline:0.157994, NAU - Baseline: -0.068925
+Loss after 1000 epochs:
+NAU:0.082636, Baseline:0.097153, NAU - Baseline: -0.014517
+
+Dim:50 5 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.098476, Baseline:0.089223, NAU - Baseline: 0.009253
+Loss after 1000 epochs:
+NAU:0.085783, Baseline:0.083300, NAU - Baseline: 0.002483
+
+Dim:50 5 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.102665, Baseline:0.087846, NAU - Baseline: 0.014819
+Loss after 1000 epochs:
+NAU:0.082887, Baseline:0.085813, NAU - Baseline: -0.002925
+
+Dim:50 10 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.100025, Baseline:0.559430, NAU - Baseline: -0.459405
+Loss after 1000 epochs:
+NAU:0.085404, Baseline:0.367170, NAU - Baseline: -0.281766
+
+Dim:50 10 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.093307, Baseline:0.118893, NAU - Baseline: -0.025586
+Loss after 1000 epochs:
+NAU:0.086698, Baseline:0.091871, NAU - Baseline: -0.005173
+
+Dim:50 10 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.113710, Baseline:0.091767, NAU - Baseline: 0.021943
+Loss after 1000 epochs:
+NAU:0.087994, Baseline:0.084973, NAU - Baseline: 0.003021
+
+Dim:50 10 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.112541, Baseline:0.113911, NAU - Baseline: -0.001370
+Loss after 1000 epochs:
+NAU:0.084374, Baseline:0.088504, NAU - Baseline: -0.004131
+
+Dim:50 10 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.091581, Baseline:0.345582, NAU - Baseline: -0.254001
+Loss after 1000 epochs:
+NAU:0.081427, Baseline:0.231235, NAU - Baseline: -0.149807
+
+Dim:50 10 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.100889, Baseline:0.111450, NAU - Baseline: -0.010561
+Loss after 1000 epochs:
+NAU:0.088633, Baseline:0.084845, NAU - Baseline: 0.003787
+
+Dim:50 25 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.114791, Baseline:0.090886, NAU - Baseline: 0.023905
+Loss after 1000 epochs:
+NAU:0.087047, Baseline:0.081971, NAU - Baseline: 0.005075
+
+Dim:50 25 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.111905, Baseline:0.109280, NAU - Baseline: 0.002625
+Loss after 1000 epochs:
+NAU:0.085522, Baseline:0.084999, NAU - Baseline: 0.000524
+
+Dim:50 25 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.108002, Baseline:0.106770, NAU - Baseline: 0.001232
+Loss after 1000 epochs:
+NAU:0.091552, Baseline:0.087584, NAU - Baseline: 0.003968
+
+Dim:50 25 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.158243, Baseline:0.098071, NAU - Baseline: 0.060172
+Loss after 1000 epochs:
+NAU:0.085767, Baseline:0.087119, NAU - Baseline: -0.001352
+
+Dim:50 25 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.111082, Baseline:0.164313, NAU - Baseline: -0.053231
+Loss after 1000 epochs:
+NAU:0.086721, Baseline:0.099773, NAU - Baseline: -0.013052
+
+Dim:50 25 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.095649, Baseline:0.131860, NAU - Baseline: -0.036211
+Loss after 1000 epochs:
+NAU:0.087395, Baseline:0.087014, NAU - Baseline: 0.000381
+
+Dim:50 50 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.116497, Baseline:0.088641, NAU - Baseline: 0.027856
+Loss after 1000 epochs:
+NAU:0.088805, Baseline:0.083517, NAU - Baseline: 0.005287
+
+Dim:50 50 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.111724, Baseline:0.095518, NAU - Baseline: 0.016206
+Loss after 1000 epochs:
+NAU:0.087690, Baseline:0.085050, NAU - Baseline: 0.002640
+
+Dim:50 50 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.176646, Baseline:0.103846, NAU - Baseline: 0.072801
+Loss after 1000 epochs:
+NAU:0.079328, Baseline:0.092042, NAU - Baseline: -0.012714
+
+Dim:50 50 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.124235, Baseline:0.151445, NAU - Baseline: -0.027211
+Loss after 1000 epochs:
+NAU:0.087058, Baseline:0.094763, NAU - Baseline: -0.007704
+
+Dim:50 50 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.119596, Baseline:0.145897, NAU - Baseline: -0.026301
+Loss after 1000 epochs:
+NAU:0.086412, Baseline:0.090872, NAU - Baseline: -0.004460
+
+Dim:50 50 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.100876, Baseline:0.130916, NAU - Baseline: -0.030041
+Loss after 1000 epochs:
+NAU:0.085209, Baseline:0.089929, NAU - Baseline: -0.004720
+
+Dim:50 100 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.108248, Baseline:0.085445, NAU - Baseline: 0.022804
+Loss after 1000 epochs:
+NAU:0.089376, Baseline:0.085004, NAU - Baseline: 0.004372
+
+Dim:50 100 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.113695, Baseline:0.156204, NAU - Baseline: -0.042510
+Loss after 1000 epochs:
+NAU:0.085060, Baseline:0.106543, NAU - Baseline: -0.021483
+
+Dim:50 100 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.144313, Baseline:0.122419, NAU - Baseline: 0.021894
+Loss after 1000 epochs:
+NAU:0.083211, Baseline:0.090678, NAU - Baseline: -0.007467
+
+Dim:50 100 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.135145, Baseline:0.104088, NAU - Baseline: 0.031057
+Loss after 1000 epochs:
+NAU:0.086645, Baseline:0.085786, NAU - Baseline: 0.000859
+
+Dim:50 100 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.112124, Baseline:0.095438, NAU - Baseline: 0.016686
+Loss after 1000 epochs:
+NAU:0.090350, Baseline:0.083405, NAU - Baseline: 0.006945
+
+Dim:50 100 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.092635, Baseline:0.121674, NAU - Baseline: -0.029039
+Loss after 1000 epochs:
+NAU:0.086528, Baseline:0.085987, NAU - Baseline: 0.000541
+
+Dim:50 200 5 , Act:linear
+Loss after 500 epochs:
+NAU:0.093305, Baseline:0.133326, NAU - Baseline: -0.040021
+Loss after 1000 epochs:
+NAU:0.085748, Baseline:0.087546, NAU - Baseline: -0.001798
+
+Dim:50 200 10 , Act:linear
+Loss after 500 epochs:
+NAU:0.107520, Baseline:0.136893, NAU - Baseline: -0.029373
+Loss after 1000 epochs:
+NAU:0.083391, Baseline:0.087428, NAU - Baseline: -0.004038
+
+Dim:50 200 25 , Act:linear
+Loss after 500 epochs:
+NAU:0.107328, Baseline:0.169124, NAU - Baseline: -0.061796
+Loss after 1000 epochs:
+NAU:0.089919, Baseline:0.095725, NAU - Baseline: -0.005806
+
+Dim:50 200 50 , Act:linear
+Loss after 500 epochs:
+NAU:0.099547, Baseline:0.129164, NAU - Baseline: -0.029616
+Loss after 1000 epochs:
+NAU:0.089190, Baseline:0.089973, NAU - Baseline: -0.000782
+
+Dim:50 200 100 , Act:linear
+Loss after 500 epochs:
+NAU:0.108610, Baseline:0.113565, NAU - Baseline: -0.004955
+Loss after 1000 epochs:
+NAU:0.085286, Baseline:0.085965, NAU - Baseline: -0.000679
+
+Dim:50 200 200 , Act:linear
+Loss after 500 epochs:
+NAU:0.100232, Baseline:0.127733, NAU - Baseline: -0.027501
+Loss after 1000 epochs:
+NAU:0.085014, Baseline:0.089468, NAU - Baseline: -0.004454
+

@@ -8,6 +8,7 @@ import math
 import numpy as np
 import collections
 import itertools
+import matplotlib.pyplot as plt
 
 """
 Test NAU vs Baseline after epoch_stop epochs
@@ -21,8 +22,12 @@ NAU
 =====================================================================
 """
 
-torch.manual_seed(0)
+def smooth(y, box_pts):
+    box = np.ones(box_pts)/box_pts
+    y_smooth = np.convolve(y, box, mode='same')
+    return y_smooth
 
+torch.manual_seed(0)
 
 class NoRandomScope:
     def __init__(self, module):
@@ -365,14 +370,15 @@ class ReRegualizedLinearMNACLayer(ExtendedTorchModule):
 
 
 ACTIVATIONS = {
-    'Tanh': torch.tanh,
-    'Sigmoid': torch.sigmoid,
-    'ReLU6': torch.nn.functional.relu6,
-    'Softsign': torch.nn.functional.softsign,
-    'SELU': torch.selu,
-    'ELU': torch.nn.functional.elu,
-    'ReLU': torch.nn.ReLU,
-    'linear': lambda x: x
+    'Tanh': nn.Tanh(),
+    'Sigmoid': nn.Sigmoid(),
+    'ReLU6': nn.ReLU6(),
+    'Softsign': nn.Softsign(),
+    'SELU': nn.SELU(),
+    'ELU': nn.ELU(),
+    'ReLU': nn.ReLU(),
+    'linear': lambda x: x,
+    'GELU' : torch.nn.GELU()
 }
 
 class BasicLayer(ExtendedTorchModule):
@@ -462,7 +468,7 @@ class GeneralizedLayer(ExtendedTorchModule):
 class NAU(ExtendedTorchModule):
     UNIT_NAMES = GeneralizedLayer.UNIT_NAMES
 
-    def __init__(self, unit_name='ReRegualizedLinearNAC', input_size=100, hidden_size=2, writer=None, first_layer=None, nac_mul='none', eps=1e-7, **kwags):
+    def __init__(self, hidden_dims, act_name, unit_name='ReRegualizedLinearNAC', input_size=100, hidden_size=2, writer=None, first_layer=None, nac_mul='none', eps=1e-7, **kwags):
         super().__init__('network', writer=writer, **kwags)
         self.unit_name = unit_name
         self.input_size = input_size
@@ -473,12 +479,29 @@ class NAU(ExtendedTorchModule):
             unit_name_1 = first_layer
         else:
             unit_name_1 = unit_name
-
         
         self.embed  = nn.Embedding(256, 256)
 
-        self.act1 = nn.ReLU()
+        #self.act1 = nn.ReLU()
+        self.act_name = act_name
+        self.nau_layers = []
+        self.acts = []
 
+        for i in range(len(hidden_dims)):
+            if i == 0:
+                self.nau_layers.append(GeneralizedLayer(input_size, hidden_dims[i], unit_name_1, writer=self.writer, name='layer_%d' %i, eps=eps, **kwags))
+            else:
+                self.nau_layers.append(GeneralizedLayer(hidden_dims[i-1], hidden_dims[i], unit_name_1, writer=self.writer, name='layer_%d' %i, eps=eps, **kwags))
+            if self.act_name != 'linear':
+                self.acts.append(ACTIVATIONS[act_name])
+
+        self.nau_layers.append(GeneralizedLayer(hidden_dims[len(hidden_dims)-1], 1, unit_name_1, writer=self.writer, name='layer_%d' %(len(hidden_dims)), eps=eps, **kwags))
+        if self.act_name != 'linear':
+            self.acts.append(ACTIVATIONS[act_name])
+
+
+
+        """
         self.layer_1 = GeneralizedLayer(input_size, 128,
                                         unit_name_1,
                                         writer=self.writer,
@@ -509,14 +532,19 @@ class NAU(ExtendedTorchModule):
         self.act4 = nn.ReLU()
 
         self.layer_4 = nn.Linear(4, 1)
+        """
 
         
         self.reset_parameters()
         self.z_1_stored = None
 
     def reset_parameters(self):
-        self.layer_1.reset_parameters()
-        self.layer_2.reset_parameters()
+        for i in range(len(self.nau_layers)):
+            self.nau_layers[i].reset_parameters()
+
+
+        #self.layer_1.reset_parameters()
+        #self.layer_2.reset_parameters()
 
     def regualizer(self):
         if self.nac_mul == 'max-safe':
@@ -527,6 +555,23 @@ class NAU(ExtendedTorchModule):
             return super().regualizer()
 
     def forward(self, input):
+
+        embedded = self.embed(input)
+        #print("Embed shape:", embedded.shape)
+        out = torch.flatten(embedded, start_dim=1)
+        #print("Flatten shape:", out.shape)
+
+        for i in range(len(self.nau_layers)):
+            out = self.nau_layers[i](out)
+            if self.act_name != 'linear':
+                out = self.acts[i](out)
+            #print("Layer", i+1, ":", out.shape)
+
+
+        return out
+
+        """
+
         #self.writer.add_summary('x', input)
 
         embedded = self.embed(input)
@@ -568,6 +613,8 @@ class NAU(ExtendedTorchModule):
 
         return a_2
 
+        """
+
     def extra_repr(self):
         return 'unit_name={}, input_size={}'.format(
             self.unit_name, self.input_size
@@ -593,6 +640,38 @@ class SummaryWriterNamespaceNoLoggingScope:
     def __exit__(self, type, value, traceback):
         self._writer._logging_enabled = True
         return False
+
+class DummySummaryWriter():
+    def __init__(self, **kwargs):
+        self._logging_enabled = False
+        pass
+
+    def add_scalar(self, name, value, verbose_only=True):
+        pass
+
+    def add_summary(self, name, tensor, verbose_only=True):
+        pass
+
+    def add_histogram(self, name, tensor, verbose_only=True):
+        pass
+
+    def add_tensor(self, name, tensor, verbose_only=True):
+        pass
+
+    def print(self, name, tensor, verbose_only=True):
+        pass
+
+    def namespace(self, name):
+        return self
+
+    def every(self, epoch_interval):
+        return self
+
+    def verbose(self, verbose):
+        return self
+
+    def no_logging(self):
+        return SummaryWriterNamespaceNoLoggingScope(self)
 
 class SummaryWriterNamespace:
     def __init__(self, namespace='', epoch_interval=1, verbose=True, root=None, parent=None):
@@ -1017,8 +1096,12 @@ dataset = SimpleFunctionStaticDataset(
     seed=0,
 )
 
+# ReLU GELU linear
+"""
 model = NAU(
-    LAYER_TYPE,
+    (100,20),
+    'ReLU',
+    unit_name=LAYER_TYPE,
     input_size=INPUT_SIZE,
     hidden_size=HIDDEN_SIZE,
     nac_oob=OOB_MODE,
@@ -1028,14 +1111,102 @@ model = NAU(
     writer=summary_writer.every(1000).verbose(VERBOSE),
     nac_mul=NAC_MUL,
 )
+"""
 
-nau_loss = []
+def train_nau(model, epochs):
+    model.reset_parameters()
+
+    dataset_train = iter(dataset.fork(sample_range=INTERPOLATION_RANGE).dataloader(batch_size=BATCH_SIZE))
+    dataset_valid_interpolation_data = next(iter(dataset.fork(sample_range=INTERPOLATION_RANGE).dataloader(batch_size=10000)))
+    dataset_test_extrapolation_data = next(iter(dataset.fork(sample_range=EXTRAPOLATION_RANGE).dataloader(batch_size=10000)))
+
+    criterion = torch.nn.MSELoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
+    #optimizer = torch.optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=MOMENTUM)
+
+
+    def test_model(data):
+        with torch.no_grad(), model.no_internal_logging(), model.no_random():
+            x, t = data
+            return criterion(model(x), t)
+
+
+    # Train model
+    print('')
+
+    losses = []
+
+    for epoch_i, (x_train, t_train) in zip(range(epochs + 1), dataset_train):
+        summary_writer.set_iteration(epoch_i)
+
+        # Prepear model
+        model.set_parameter('tau', max(0.5, math.exp(-1e-5 * epoch_i)))
+        optimizer.zero_grad()
+
+        # Log validation
+        if epoch_i % 1000 == 0:
+            interpolation_error = test_model(dataset_valid_interpolation_data)
+            extrapolation_error = test_model(dataset_test_extrapolation_data)
+
+            summary_writer.add_scalar('metric/valid/interpolation', interpolation_error)
+            summary_writer.add_scalar('metric/test/extrapolation', extrapolation_error)
+
+        # forward
+        y_train = model(x_train)
+        regualizers = model.regualizer()
+
+        if (REGUALIZER_SCALING == 'linear'):
+            r_w_scale = max(0, min(1, (
+                (epoch_i - REGUALIZER_SCALING_START) /
+                (REGUALIZER_SCALING_END - REGUALIZER_SCALING_START)
+            )))
+        elif (REGUALIZER_SCALING == 'exp'):
+            r_w_scale = 1 - math.exp(-1e-5 * epoch_i)
+
+        loss_train_criterion = criterion(y_train, t_train)
+        losses.append(loss_train_criterion)
+        loss_train_regualizer = REGUALIZER * r_w_scale * regualizers['W'] + regualizers['g'] + REGUALIZER_Z * regualizers['z'] + REGUALIZER_OOB * regualizers['W-OOB']
+        loss_train = loss_train_criterion
+
+        # Log loss
+        if VERBOSE or epoch_i % 1000 == 0:
+            summary_writer.add_scalar('loss/train/critation', loss_train_criterion)
+            summary_writer.add_scalar('loss/train/regualizer', loss_train_regualizer)
+            summary_writer.add_scalar('loss/train/total', loss_train)
+        if epoch_i % 1000 == 0:
+            print('train %d: %.5f, inter: %.5f, extra: %.5f' % (epoch_i, loss_train_criterion, interpolation_error, extrapolation_error))
+
+        # Optimize model
+        if loss_train.requires_grad:
+            loss_train.backward()
+            optimizer.step()
+        model.optimize(loss_train_criterion)
+
+        # Log gradients if in verbose mode
+        if VERBOSE and epoch_i % 1000 == 0:
+            model.log_gradients()
+
+    return smooth(losses, 10)
+        
+
 
 """
 if __name__ == '__main__':
 
     model.reset_parameters()
-
+model = NAU(
+    (100,20),
+    'ReLU',
+    unit_name=LAYER_TYPE,
+    input_size=INPUT_SIZE,
+    hidden_size=HIDDEN_SIZE,
+    nac_oob=OOB_MODE,
+    regualizer_shape=REGUALIZER_SHAPE,
+    regualizer_z=REGUALIZER_Z,
+    mnac_epsilon=MNAC_EPSILON,
+    writer=summary_writer.every(1000).verbose(VERBOSE),
+    nac_mul=NAC_MUL,
+)
     dataset_train = iter(dataset.fork(sample_range=INTERPOLATION_RANGE).dataloader(batch_size=BATCH_SIZE))
     dataset_valid_interpolation_data = next(iter(dataset.fork(sample_range=INTERPOLATION_RANGE).dataloader(batch_size=10000)))
     dataset_test_extrapolation_data = next(iter(dataset.fork(sample_range=EXTRAPOLATION_RANGE).dataloader(batch_size=10000)))
@@ -1102,7 +1273,6 @@ if __name__ == '__main__':
         # Log gradients if in verbose mode
         if VERBOSE and epoch_i % 1000 == 0:
             model.log_gradients()
-
 """
 
 """
@@ -1112,8 +1282,11 @@ BASELINE
 """
 
 class Baseline(nn.Module):
-    def __init__(self, hidden_dim, input_size=2, output_size=1):
+    def __init__(self, hidden_dim, act_name, input_size=2, output_size=1):
         super(Baseline, self).__init__()
+
+        self.act_name = act_name
+
         self.embed = nn.Embedding(256,256)
         
         self.linears = []
@@ -1125,10 +1298,12 @@ class Baseline(nn.Module):
             else:
                 self.linears.append(nn.Linear(hidden_dim[i-1], hidden_dim[i]))
                 
-            self.acts.append(nn.Sigmoid())
+            if self.act_name != 'linear':
+                self.acts.append(ACTIVATIONS[self.act_name])
 
         self.linears.append(nn.Linear(hidden_dim[len(hidden_dim)-1], 1))
-        self.acts.append(nn.Sigmoid())
+        if self.act_name != 'linear':
+            self.acts.append(ACTIVATIONS[self.act_name])
         
         
         """
@@ -1150,7 +1325,8 @@ class Baseline(nn.Module):
         
         for i in range(len(self.linears)):
             out = self.linears[i](out)
-            out = self.acts[i](out)
+            if self.act_name != 'linear':
+                out = self.acts[i](out)
             #print("Layer", i+1, ":", out.shape)
             
         return out
@@ -1167,7 +1343,7 @@ class Baseline(nn.Module):
         return a_3
         """
 
-def dataset(max_num, batch_size):
+def dataset_gen(max_num, batch_size):
 
     pairs = torch.randint(max_num, (batch_size, 2))
     sums = torch.sum(pairs, dim=1)
@@ -1181,13 +1357,36 @@ EPOCHS=5000000
 LEARNING_RATE=1e-3
 BATCH_SIZE=128
 
-#model = Baseline()
+#model = Baseline((100, 50), 'GELU')
 
-criterion = torch.nn.MSELoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
-base_loss = []
-base_xtra = []
+
+def train_baseline(model, epochs):
+    losses = []
+
+    criterion = torch.nn.MSELoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
+
+    for epoch in range(epochs):
+
+        optimizer.zero_grad()
+
+        x_train, t_train = dataset_gen(256, BATCH_SIZE)
+
+        y_train = model(x_train)
+
+        loss = criterion(y_train, t_train)
+        
+        losses.append(loss)
+
+        if epoch % 1000 == 0:
+            print("train %d: %.5f" %(epoch, loss))
+
+        loss.backward()
+        optimizer.step()
+
+    return smooth(losses, 10)
+
 """
 if __name__ == '__main__':
     for epoch in range(EPOCHS):
@@ -1214,6 +1413,8 @@ TESTING
 =====================================================================
 """
 
+
+
 def combos(depth, dim_options):
     tmp = []
     for i in range(depth):
@@ -1221,21 +1422,57 @@ def combos(depth, dim_options):
     tmp = list(itertools.product(*tmp))
     return tmp
 
-num_layers = range(1,11)
-hidden_dim = range(1, 101, 10)
+def list2string(l):
+    st = ""
+    for e in l:
+        st += str(e)
+        st += " "
+    return st
+
+def list2fn(l):
+    st = ""
+    for e in l:
+        st += str(e)
+        st += "_"
+    return st
+    
+
+act_functions = ['linear', 'GELU', 'ReLU', 'Sigmoid']
+num_layers = range(1,3)
+hidden_dim = [2, 4, 8, 16]
 epoch_stop = 2000
 
-"""
-for layer in num_layers:
-    opts = combos(layer, hidden_dim)
-    for i in opts:
-"""
+for act in act_functions:
+    for layer in num_layers:
+        opts = combos(layer, hidden_dim)
+        for i in opts:
+            
+            print("--------------------------------------")
+            print("Hidden Dims:", i)
+            print("Activation:", act)
 
+            print("Training Baseline...")
+            baseline = Baseline(i, act)
+            base_loss = train_baseline(baseline, epoch_stop)
 
-"""
-    def smooth(y, box_pts):
-    ...:     box = np.ones(box_pts)/box_pts
-    ...:     y_smooth = np.convolve(y, box, mode='same')
-    ...:     return y_smooth
-
-"""
+            print("Training NAU...")
+            nau = NAU(i, act, unit_name=LAYER_TYPE, input_size=INPUT_SIZE, hidden_size=HIDDEN_SIZE, nac_oob=OOB_MODE, regualizer_shape=REGUALIZER_SHAPE, regualizer_z=REGUALIZER_Z, mnac_epsilon=MNAC_EPSILON, writer=summary_writer.every(1000).verbose(VERBOSE), nac_mul=NAC_MUL)
+            nau_loss = train_nau(nau, epoch_stop)
+            nau_loss = nau_loss[:epoch_stop]
+            
+            t = np.arange(epoch_stop)
+            plt.plot(t, base_loss, 'r', label='Baseline')
+            plt.plot(t, nau_loss, 'b', label='NAU')
+            plt.ylim(0, 1)
+            plt.legend(loc='upper right')
+            plt.title('NAU vs. Baseline, Dim:%s, Act:%s' %(list2string(i), act))
+            plt.savefig('images/%s%s' %(list2fn(i), act))
+            plt.clf()
+            with open('results.txt', 'a') as f:
+                f.write('Dim:%s, Act:%s\n' %(list2string(i), act))
+                f.write('Loss after 500 epochs:\n')
+                f.write('NAU:%f, Baseline:%f, NAU - Baseline: %f\n' %(nau_loss[500], base_loss[500], nau_loss[500]-base_loss[500]))
+                f.write('Loss after 1000 epochs:\n')
+                f.write('NAU:%f, Baseline:%f, NAU - Baseline: %f\n' %(nau_loss[1000], base_loss[1000], nau_loss[1000]-base_loss[1000]))
+                f.write('\n')
+                    
