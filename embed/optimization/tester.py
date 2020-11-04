@@ -628,7 +628,7 @@ THIS_DIR = path.dirname(path.realpath(__file__))
 if 'TENSORBOARD_DIR' in os.environ:
     TENSORBOARD_DIR = os.environ['TENSORBOARD_DIR']
 else:
-    TENSORBOARD_DIR = path.join(THIS_DIR, '../../tensorboard')
+    TENSORBOARD_DIR = path.join(THIS_DIR, '../../../tensorboard')
 
 class SummaryWriterNamespaceNoLoggingScope:
     def __init__(self, writer):
@@ -1438,16 +1438,16 @@ def list2fn(l):
     
 
 act_functions = ['linear', 'GELU', 'ReLU', 'Sigmoid']
-num_layers = range(1,3)
-hidden_dim = [2, 4, 8, 16]
-epoch_stop = 2000
+num_layers = range(3,5)
+hidden_dim = [8, 16, 32, 64]
+epoch_stop = 1000
 
 for act in act_functions:
     for layer in num_layers:
         opts = combos(layer, hidden_dim)
         for i in opts:
             
-            print("--------------------------------------")
+            print("-----------------------------------------------------------------------")
             print("Hidden Dims:", i)
             print("Activation:", act)
 
@@ -1473,6 +1473,6 @@ for act in act_functions:
                 f.write('Loss after 500 epochs:\n')
                 f.write('NAU:%f, Baseline:%f, NAU - Baseline: %f\n' %(nau_loss[500], base_loss[500], nau_loss[500]-base_loss[500]))
                 f.write('Loss after 1000 epochs:\n')
-                f.write('NAU:%f, Baseline:%f, NAU - Baseline: %f\n' %(nau_loss[1000], base_loss[1000], nau_loss[1000]-base_loss[1000]))
+                f.write('NAU:%f, Baseline:%f, NAU - Baseline: %f\n' %(nau_loss[999], base_loss[999], nau_loss[999]-base_loss[999]))
                 f.write('\n')
                     
