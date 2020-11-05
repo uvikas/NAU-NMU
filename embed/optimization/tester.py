@@ -9,6 +9,8 @@ import numpy as np
 import collections
 import itertools
 import matplotlib.pyplot as plt
+import time
+import csv
 
 """
 Test NAU vs Baseline after epoch_stop epochs
@@ -378,8 +380,19 @@ ACTIVATIONS = {
     'ELU': nn.ELU(),
     'ReLU': nn.ReLU(),
     'linear': lambda x: x,
-    'GELU' : torch.nn.GELU()
+    'GELU' : torch.nn.GELU(),
+    'LeakyReLU':nn.LeakyReLU(), 
+    'RandReLU':nn.RReLU(),
+    'CELU': nn.CELU(),
+    'Softplus':nn.Softplus(),
+    'Hardshrink':nn.Hardshrink(),
+    'Hardsigmoid':nn.Hardsigmoid(),
+    'Hardtanh':nn.Hardtanh(),
+    'Hardswish':nn.Hardswish(),
+    'Tanhshrink':nn.Tanhshrink
 }
+
+
 
 class BasicLayer(ExtendedTorchModule):
     ACTIVATIONS = set(ACTIVATIONS.keys())
@@ -468,7 +481,7 @@ class GeneralizedLayer(ExtendedTorchModule):
 class NAU(ExtendedTorchModule):
     UNIT_NAMES = GeneralizedLayer.UNIT_NAMES
 
-    def __init__(self, hidden_dims, act_name, unit_name='ReRegualizedLinearNAC', input_size=100, hidden_size=2, writer=None, first_layer=None, nac_mul='none', eps=1e-7, **kwags):
+    def __init__(self, hidden_dims, act_name, unit_name='ReRegualizedLinearNAC', input_size=512, hidden_size=2, writer=None, first_layer=None, nac_mul='none', eps=1e-7, **kwags):
         super().__init__('network', writer=writer, **kwags)
         self.unit_name = unit_name
         self.input_size = input_size
@@ -553,6 +566,34 @@ class NAU(ExtendedTorchModule):
             })
         else:
             return super().regualizer()
+    
+    def get_model_size(self):
+        # Input
+        input_size = (1,1,2)
+        input_bits = np.prod(input_size)*64
+
+        # Parameters
+        param_bits = 0
+        param_bits += np.prod(np.array(list(self.embed.parameters())[0].size()))*32
+        for lay in self.nau_layers:
+            param_bits += np.prod(np.array(list(lay.parameters())[0].size()))*32
+
+        # Forward Backward
+        forw_back_bits = 0
+        ex_inp = torch.tensor([[1, 1]])
+        out = self.embed(ex_inp)
+        forw_back_bits += np.prod(np.array(out.size()))*32*2
+        out = torch.flatten(out, start_dim=1)
+        forw_back_bits += np.prod(np.array(out.size()))*32
+        for i in range(len(self.nau_layers)):
+            out = self.nau_layers[i](out)
+            forw_back_bits += np.prod(np.array(out.size()))*32*2
+            if self.act_name != 'linear':
+                out = self.acts[i](out)
+                forw_back_bits += np.prod(np.array(out.size()))*32
+
+        return (input_bits, param_bits, forw_back_bits)
+
 
     def forward(self, input):
 
@@ -1343,6 +1384,36 @@ class Baseline(nn.Module):
         return a_3
         """
 
+    def get_model_size(self):
+        # Input
+        input_size = (1,1,2)
+        input_bits = np.prod(input_size)*64
+
+        # Parameters
+        param_bits = 0
+        param_bits += np.prod(np.array(list(self.embed.parameters())[0].size()))*32
+        for lin in self.linears:
+            param_bits += np.prod(np.array(list(lin.parameters())[0].size()))*32
+
+        # Forward Backward
+        forw_back_bits = 0
+        ex_inp = torch.tensor([[1, 1]])
+        out = self.embed(ex_inp)
+        forw_back_bits += np.prod(np.array(out.size()))*32*2
+        out = torch.flatten(out, start_dim=1)
+        forw_back_bits += np.prod(np.array(out.size()))*32
+        for i in range(len(self.linears)):
+            out = self.linears[i](out)
+            forw_back_bits += np.prod(np.array(out.size()))*32*2
+            if self.act_name != 'linear':
+                out = self.acts[i](out)
+                forw_back_bits += np.prod(np.array(out.size()))*32
+
+        return (input_bits, param_bits, forw_back_bits)
+        
+
+
+
 def dataset_gen(max_num, batch_size):
 
     pairs = torch.randint(max_num, (batch_size, 2))
@@ -1435,44 +1506,96 @@ def list2fn(l):
         st += str(e)
         st += "_"
     return st
-    
 
-act_functions = ['linear', 'GELU', 'ReLU', 'Sigmoid']
-num_layers = range(3,5)
-hidden_dim = [8, 16, 32, 64]
+def list2csv(l):
+    st = "2->512->"
+    for e in l:
+        st += str(e)
+        st += "->"
+    st += "1"
+    return st
+
+"""
+ACTIVATIONS = {
+    'Tanh': nn.Tanh(),
+    'Sigmoid': nn.Sigmoid(),
+    'ReLU6': nn.ReLU6(),
+    'Softsign': nn.Softsign(),
+    'SELU': nn.SELU(),
+    'ELU': nn.ELU(),
+    'ReLU': nn.ReLU(),
+    'linear': lambda x: x,
+    'GELU' : torch.nn.GELU(),
+    'LeakyReLU':nn.LeakyReLU(), 
+    'RandReLU':nn.RReLU(),
+    'CELU': nn.CELU(),
+    'Softplus':nn.Softplus(),
+    'Hardshrink':nn.Hardshrink(),
+    'Hardsigmoid':nn.Hardsigmoid(),
+    'Hardtanh':nn.Hardtanh(),
+    'Hardswish':nn.Hardswish(),
+    'Tanhshrink':nn.Tanhshrink
+}
+"""
+
+act_functions = ['linear', 'GELU', 'ReLU', 'Sigmoid','ELU', 'Tanh', 'ReLU6','LeakyReLU', 'RandReLU', 'SELU', 'CELU', 'Softplus', 'Hardshrink', 'Hardsigmoid' ,'Hardtanh', 'Hardswish', 'Tanhshrink']
+num_layers = range(1, 3)
+hidden_dim = [2, 4, 8, 16, 32, 64]
 epoch_stop = 1000
 
-for act in act_functions:
-    for layer in num_layers:
-        opts = combos(layer, hidden_dim)
-        for i in opts:
-            
-            print("-----------------------------------------------------------------------")
-            print("Hidden Dims:", i)
-            print("Activation:", act)
 
-            print("Training Baseline...")
-            baseline = Baseline(i, act)
-            base_loss = train_baseline(baseline, epoch_stop)
+with open('results.csv', 'w') as f:
+    fields = ['Dimensions', 'Activation', 'Total Memory Size (MB)', 'NAU Loss @ 500epoch', 'Baseline Loss @ 500epoch', 
+            'Loss Diff (NAU-Baseline) @ 500 epoch','NAU Loss @ 1000epoch', 'Baseline Loss @ 1000epoch', 'Loss Diff (NAU-Basline) @ 1000epoch', 
+            'NAU Training Time @ 1000epoch (sec)', 'Baseline Training Time @ 1000epoch (sec)']
+    writer = csv.DictWriter(f, fieldnames=fields, delimiter=',')
+    writer.writeheader()
 
-            print("Training NAU...")
-            nau = NAU(i, act, unit_name=LAYER_TYPE, input_size=INPUT_SIZE, hidden_size=HIDDEN_SIZE, nac_oob=OOB_MODE, regualizer_shape=REGUALIZER_SHAPE, regualizer_z=REGUALIZER_Z, mnac_epsilon=MNAC_EPSILON, writer=summary_writer.every(1000).verbose(VERBOSE), nac_mul=NAC_MUL)
-            nau_loss = train_nau(nau, epoch_stop)
-            nau_loss = nau_loss[:epoch_stop]
-            
-            t = np.arange(epoch_stop)
-            plt.plot(t, base_loss, 'r', label='Baseline')
-            plt.plot(t, nau_loss, 'b', label='NAU')
-            plt.ylim(0, 1)
-            plt.legend(loc='upper right')
-            plt.title('NAU vs. Baseline, Dim:%s, Act:%s' %(list2string(i), act))
-            plt.savefig('images/%s%s' %(list2fn(i), act))
-            plt.clf()
-            with open('results.txt', 'a') as f:
-                f.write('Dim:%s, Act:%s\n' %(list2string(i), act))
-                f.write('Loss after 500 epochs:\n')
-                f.write('NAU:%f, Baseline:%f, NAU - Baseline: %f\n' %(nau_loss[500], base_loss[500], nau_loss[500]-base_loss[500]))
-                f.write('Loss after 1000 epochs:\n')
-                f.write('NAU:%f, Baseline:%f, NAU - Baseline: %f\n' %(nau_loss[999], base_loss[999], nau_loss[999]-base_loss[999]))
-                f.write('\n')
+    for act in act_functions:
+        for layer in num_layers:
+            opts = combos(layer, hidden_dim)
+            for i in opts:
+                
+                print("-----------------------------------------------------------------------")
+                print("Hidden Dims:", i)
+                print("Activation:", act)
+
+                print("Training Baseline...")
+                base_start = time.time()
+                baseline = Baseline(i, act)
+                base_loss = train_baseline(baseline, epoch_stop)
+                base_end = time.time()
+
+                print("Training NAU...")
+                nau_start = time.time()
+                nau = NAU(i, act, unit_name=LAYER_TYPE, input_size=INPUT_SIZE, hidden_size=HIDDEN_SIZE, nac_oob=OOB_MODE, regualizer_shape=REGUALIZER_SHAPE, regualizer_z=REGUALIZER_Z, mnac_epsilon=MNAC_EPSILON, writer=summary_writer.every(1000).verbose(VERBOSE), nac_mul=NAC_MUL)
+                nau_loss = train_nau(nau, epoch_stop)
+                nau_loss = nau_loss[:epoch_stop]
+                nau_end = time.time()
+                
+                """
+                t = np.arange(epoch_stop)
+                plt.plot(t, base_loss, 'r', label='Baseline')
+                plt.plot(t, nau_loss, 'b', label='NAU')
+                plt.ylim(0, 1)
+                plt.legend(loc='upper right')
+                plt.title('NAU vs. Baseline, Dim:%s, Act:%s' %(list2string(i), act))
+                plt.savefig('images/%s%s' %(list2fn(i), act))
+                plt.clf()
+                
+
+                with open('results.txt', 'a') as f:
+                    f.write('Dim:%s, Act:%s\n' %(list2string(i), act))
+                    f.write('Loss after 500 epochs:\n')
+                    f.write('NAU:%f, Baseline:%f, NAU - Baseline: %f\n' %(nau_loss[500], base_loss[500], nau_loss[500]-base_loss[500]))
+                    f.write('Loss after 1000 epochs:\n')
+                    f.write('NAU:%f, Baseline:%f, NAU - Baseline: %f\n' %(nau_loss[999], base_loss[999], nau_loss[999]-base_loss[999]))
+                    f.write('\n')
+                """
+
+                writer.writerow({'Dimensions': list2csv(i), 'Activation': act, 
+                'Total Memory Size (MB)': sum(baseline.get_model_size())/8000000.0, 
+                'NAU Loss @ 500epoch':str(nau_loss[500].item()), 'Baseline Loss @ 500epoch':str(base_loss[500].item()), 'Loss Diff (NAU-Baseline) @ 500 epoch': str(nau_loss[500].item() - base_loss[500].item()),
+                'NAU Loss @ 1000epoch':str(nau_loss[990].item()), 'Baseline Loss @ 1000epoch':str(base_loss[990].item()), 'Loss Diff (NAU-Basline) @ 1000epoch':str(nau_loss[990].item() - base_loss[990].item()), 
+                'NAU Training Time @ 1000epoch (sec)':str(nau_end - nau_start), 'Baseline Training Time @ 1000epoch (sec)':str(base_end - base_start)})
                     
