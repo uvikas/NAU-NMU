@@ -1538,13 +1538,13 @@ ACTIVATIONS = {
 }
 """
 
-act_functions = ['linear', 'GELU', 'ReLU', 'Sigmoid','ELU', 'Tanh', 'ReLU6','LeakyReLU', 'RandReLU', 'SELU', 'CELU', 'Softplus', 'Hardshrink', 'Hardsigmoid' ,'Hardtanh', 'Hardswish', 'Tanhshrink']
+act_functions = ['linear', 'GELU', 'ReLU', 'Sigmoid','ELU', 'Tanh', 'ReLU6','LeakyReLU', 'RandReLU', 'SELU', 'CELU', 'Softplus', 'Hardshrink', 'Hardsigmoid' ,'Hardtanh', 'Hardswish']
 num_layers = range(1, 3)
 hidden_dim = [2, 4, 8, 16, 32, 64]
 epoch_stop = 1000
 
 
-with open('results.csv', 'w') as f:
+with open('results1.csv', 'w') as f:
     fields = ['Dimensions', 'Activation', 'Total Memory Size (MB)', 'NAU Loss @ 500epoch', 'Baseline Loss @ 500epoch', 
             'Loss Diff (NAU-Baseline) @ 500 epoch','NAU Loss @ 1000epoch', 'Baseline Loss @ 1000epoch', 'Loss Diff (NAU-Basline) @ 1000epoch', 
             'NAU Training Time @ 1000epoch (sec)', 'Baseline Training Time @ 1000epoch (sec)']
