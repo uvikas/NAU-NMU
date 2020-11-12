@@ -389,10 +389,36 @@ ACTIVATIONS = {
     'Hardsigmoid':nn.Hardsigmoid(),
     'Hardtanh':nn.Hardtanh(),
     'Hardswish':nn.Hardswish(),
-    'Tanhshrink':nn.Tanhshrink
+    'Tanhshrink':nn.Tanhshrink()
 }
 
+INITIALIZATIONS = {
+    'Tanh': lambda W: torch.nn.init.xavier_uniform_(
+        W, gain=torch.nn.init.calculate_gain('tanh')),
 
+    'Sigmoid': lambda W: torch.nn.init.xavier_uniform_(
+        W, gain=torch.nn.init.calculate_gain('sigmoid')),
+
+    'ReLU6': lambda W: torch.nn.init.kaiming_uniform_(
+        W, nonlinearity='relu'),
+
+    'Softsign': lambda W: torch.nn.init.xavier_uniform_(
+        W, gain=1),
+
+    'SELU': lambda W: torch.nn.init.uniform_(
+        W, a=-math.sqrt(3/W.size(1)), b=math.sqrt(3/W.size(1))),
+
+    # ELU: The weights have been initialized according to (He et al., 2015).
+    #      source: https://arxiv.org/pdf/1511.07289.pdf
+    'ELU': lambda W: torch.nn.init.kaiming_uniform_(
+        W, nonlinearity='relu'),
+
+    'ReLU': lambda W: torch.nn.init.kaiming_uniform_(
+        W, nonlinearity='relu'),
+
+    'linear': lambda W: torch.nn.init.xavier_uniform_(
+        W, gain=torch.nn.init.calculate_gain('linear'))
+}
 
 class BasicLayer(ExtendedTorchModule):
     ACTIVATIONS = set(ACTIVATIONS.keys())
@@ -1121,6 +1147,7 @@ NO_CUDA=False
 NAME_PREFIX='NAU'
 REMOVE_EXISTING_DATA=True
 VERBOSE=True
+MINI_BATCH_SIZE=16
 
 summary_writer = SummaryWriter(
         'NAU',
@@ -1176,60 +1203,65 @@ def train_nau(model, epochs):
     print('')
 
     losses = []
-
     for epoch_i, (x_train, t_train) in zip(range(epochs + 1), dataset_train):
-        summary_writer.set_iteration(epoch_i)
+        mini_batch_loss = []
+        for mini in range(MINI_BATCH_SIZE):
+            summary_writer.set_iteration(epoch_i)
 
-        # Prepear model
-        model.set_parameter('tau', max(0.5, math.exp(-1e-5 * epoch_i)))
-        optimizer.zero_grad()
+            # Prepear model
+            model.set_parameter('tau', max(0.5, math.exp(-1e-5 * epoch_i)))
+            optimizer.zero_grad()
 
-        # Log validation
-        if epoch_i % 1000 == 0:
-            interpolation_error = test_model(dataset_valid_interpolation_data)
-            extrapolation_error = test_model(dataset_test_extrapolation_data)
+            # Log validation
+            if epoch_i % 1000 == 0:
+                interpolation_error = test_model(dataset_valid_interpolation_data)
+                extrapolation_error = test_model(dataset_test_extrapolation_data)
 
-            summary_writer.add_scalar('metric/valid/interpolation', interpolation_error)
-            summary_writer.add_scalar('metric/test/extrapolation', extrapolation_error)
+                summary_writer.add_scalar('metric/valid/interpolation', interpolation_error)
+                summary_writer.add_scalar('metric/test/extrapolation', extrapolation_error)
 
-        # forward
-        y_train = model(x_train)
-        regualizers = model.regualizer()
+            # forward
+            y_train = model(x_train)
+            regualizers = model.regualizer()
 
-        if (REGUALIZER_SCALING == 'linear'):
-            r_w_scale = max(0, min(1, (
-                (epoch_i - REGUALIZER_SCALING_START) /
-                (REGUALIZER_SCALING_END - REGUALIZER_SCALING_START)
-            )))
-        elif (REGUALIZER_SCALING == 'exp'):
-            r_w_scale = 1 - math.exp(-1e-5 * epoch_i)
+            if (REGUALIZER_SCALING == 'linear'):
+                r_w_scale = max(0, min(1, (
+                    (epoch_i - REGUALIZER_SCALING_START) /
+                    (REGUALIZER_SCALING_END - REGUALIZER_SCALING_START)
+                )))
+            elif (REGUALIZER_SCALING == 'exp'):
+                r_w_scale = 1 - math.exp(-1e-5 * epoch_i)
 
-        loss_train_criterion = criterion(y_train, t_train)
-        losses.append(loss_train_criterion)
-        loss_train_regualizer = REGUALIZER * r_w_scale * regualizers['W'] + regualizers['g'] + REGUALIZER_Z * regualizers['z'] + REGUALIZER_OOB * regualizers['W-OOB']
-        loss_train = loss_train_criterion
+            loss_train_criterion = criterion(y_train, t_train)
+            mini_batch_loss.append(loss_train_criterion)
+            loss_train_regualizer = REGUALIZER * r_w_scale * regualizers['W'] + regualizers['g'] + REGUALIZER_Z * regualizers['z'] + REGUALIZER_OOB * regualizers['W-OOB']
+            loss_train = loss_train_criterion
 
-        # Log loss
-        if VERBOSE or epoch_i % 1000 == 0:
-            summary_writer.add_scalar('loss/train/critation', loss_train_criterion)
-            summary_writer.add_scalar('loss/train/regualizer', loss_train_regualizer)
-            summary_writer.add_scalar('loss/train/total', loss_train)
-        if epoch_i % 1000 == 0:
-            print('train %d: %.5f, inter: %.5f, extra: %.5f' % (epoch_i, loss_train_criterion, interpolation_error, extrapolation_error))
+            # Log loss
+            if VERBOSE or epoch_i % 1000 == 0:
+                summary_writer.add_scalar('loss/train/critation', loss_train_criterion)
+                summary_writer.add_scalar('loss/train/regualizer', loss_train_regualizer)
+                summary_writer.add_scalar('loss/train/total', loss_train)
+            #if epoch_i % 1000 == 0:
+            #    print('train %d: %.5f, inter: %.5f, extra: %.5f' % (epoch_i, loss_train_criterion, interpolation_error, extrapolation_error))
 
-        # Optimize model
-        if loss_train.requires_grad:
-            loss_train.backward()
-            optimizer.step()
-        model.optimize(loss_train_criterion)
+            # Optimize model
+            if loss_train.requires_grad:
+                loss_train.backward()
+                optimizer.step()
+            model.optimize(loss_train_criterion)
 
-        # Log gradients if in verbose mode
-        if VERBOSE and epoch_i % 1000 == 0:
-            model.log_gradients()
-
-    return smooth(losses, 10)
+            # Log gradients if in verbose mode
+            if VERBOSE and epoch_i % 1000 == 0:
+                model.log_gradients()
+            
+            #print(epoch_i, mini, loss_train.item())
         
+        losses.append(sum(mini_batch_loss)/len(mini_batch_loss))
+        if(epoch_i % 500 == 0):
+            print('train %d: %.5f' % (epoch_i, sum(mini_batch_loss)/len(mini_batch_loss)))
 
+    return smooth(losses, 5)
 
 """
 if __name__ == '__main__':
@@ -1417,8 +1449,8 @@ class Baseline(nn.Module):
 def dataset_gen(max_num, batch_size):
 
     pairs = torch.randint(max_num, (batch_size, 2))
-    sums = torch.sum(pairs, dim=1)
-    sums = sums.reshape(-1, 1).float() % 256
+    sums = torch.sum(pairs, dim=1) % 256
+    sums = sums.reshape(-1, 1).float() 
     sums = (sums-0) / 256.
 
     return (torch.tensor(pairs, dtype=torch.int64), torch.tensor(sums, dtype=torch.float32))
@@ -1437,26 +1469,31 @@ def train_baseline(model, epochs):
 
     criterion = torch.nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-
     for epoch in range(epochs):
+        mini_batch_loss = []
+        for mini in range(MINI_BATCH_SIZE):
 
-        optimizer.zero_grad()
+            optimizer.zero_grad()
 
-        x_train, t_train = dataset_gen(256, BATCH_SIZE)
+            x_train, t_train = dataset_gen(256, BATCH_SIZE)
 
-        y_train = model(x_train)
+            y_train = model(x_train)
 
-        loss = criterion(y_train, t_train)
-        
-        losses.append(loss)
+            loss = criterion(y_train, t_train)
 
-        if epoch % 1000 == 0:
-            print("train %d: %.5f" %(epoch, loss))
+            mini_batch_loss.append(loss)
 
-        loss.backward()
-        optimizer.step()
+            #if epoch % 1000 == 0:
+            #    print("train %d: %.5f" %(epoch, loss))
 
-    return smooth(losses, 10)
+            loss.backward()
+            optimizer.step()
+
+        losses.append(sum(mini_batch_loss) / len(mini_batch_loss))
+        if(epoch % 500 == 0):
+            print('train %d: %.5f' % (epoch, sum(mini_batch_loss)/len(mini_batch_loss)))
+
+    return smooth(losses, 5)
 
 """
 if __name__ == '__main__':
@@ -1534,19 +1571,23 @@ ACTIVATIONS = {
     'Hardsigmoid':nn.Hardsigmoid(),
     'Hardtanh':nn.Hardtanh(),
     'Hardswish':nn.Hardswish(),
-    'Tanhshrink':nn.Tanhshrink
+    'Tanhshrink':nn.Tanhshrink()
 }
 """
 
-act_functions = ['linear', 'GELU', 'ReLU', 'Sigmoid','ELU', 'Tanh', 'ReLU6','LeakyReLU', 'RandReLU', 'SELU', 'CELU', 'Softplus', 'Hardshrink', 'Hardsigmoid' ,'Hardtanh', 'Hardswish']
-num_layers = range(1, 3)
-hidden_dim = [2, 4, 8, 16, 32, 64]
-epoch_stop = 1000
+act_functions = ['linear', 'GELU', 'ReLU', 'Sigmoid','ELU', 'Tanh', 'ReLU6','LeakyReLU', 'RandReLU', 'SELU', 'CELU', 'Softplus', 'Hardshrink', 'Hardsigmoid' ,'Hardtanh', 'Hardswish', 'Tanhshrink']
+num_layers = range(1, 2)
+hidden_dim = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]
+epoch_stop = 500
 
 
-with open('results1.csv', 'w') as f:
-    fields = ['Dimensions', 'Activation', 'Total Memory Size (MB)', 'NAU Loss @ 500epoch', 'Baseline Loss @ 500epoch', 
-            'Loss Diff (NAU-Baseline) @ 500 epoch','NAU Loss @ 1000epoch', 'Baseline Loss @ 1000epoch', 'Loss Diff (NAU-Basline) @ 1000epoch', 
+with open('one_layer_results.csv', 'w') as f:
+    fields = ['Dimensions', 'Activation', 'Total Memory Size (MB)', 
+            'NAU Loss @ 25epoch', 'Baseline Loss @ 25epoch', 'Loss Diff (NAU-Baseline) @ 25epoch',
+            'NAU Loss @ 50epoch', 'Baseline Loss @ 50epoch', 'Loss Diff (NAU-Baseline) @ 50epoch', 
+            'NAU Loss @ 75epoch', 'Baseline Loss @ 75epoch', 'Loss Diff (NAU-Baseline) @ 75epoch',
+            'NAU Loss @ 100epoch', 'Baseline Loss @ 100epoch', 'Loss Diff (NAU-Baseline) @ 100epoch',
+            'NAU Loss @ 500epoch', 'Baseline Loss @ 500epoch', 'Loss Diff (NAU-Baseline) @ 500epoch',
             'NAU Training Time @ 1000epoch (sec)', 'Baseline Training Time @ 1000epoch (sec)']
     writer = csv.DictWriter(f, fieldnames=fields, delimiter=',')
     writer.writeheader()
@@ -1573,17 +1614,18 @@ with open('results1.csv', 'w') as f:
                 nau_loss = nau_loss[:epoch_stop]
                 nau_end = time.time()
                 
-                """
+                
                 t = np.arange(epoch_stop)
                 plt.plot(t, base_loss, 'r', label='Baseline')
                 plt.plot(t, nau_loss, 'b', label='NAU')
                 plt.ylim(0, 1)
                 plt.legend(loc='upper right')
                 plt.title('NAU vs. Baseline, Dim:%s, Act:%s' %(list2string(i), act))
-                plt.savefig('images/%s%s' %(list2fn(i), act))
+                plt.savefig('one_layer_loss_curves/%s%s' %(list2fn(i), act))
                 plt.clf()
                 
-
+                
+                """
                 with open('results.txt', 'a') as f:
                     f.write('Dim:%s, Act:%s\n' %(list2string(i), act))
                     f.write('Loss after 500 epochs:\n')
@@ -1595,7 +1637,10 @@ with open('results1.csv', 'w') as f:
 
                 writer.writerow({'Dimensions': list2csv(i), 'Activation': act, 
                 'Total Memory Size (MB)': sum(baseline.get_model_size())/8000000.0, 
-                'NAU Loss @ 500epoch':str(nau_loss[500].item()), 'Baseline Loss @ 500epoch':str(base_loss[500].item()), 'Loss Diff (NAU-Baseline) @ 500 epoch': str(nau_loss[500].item() - base_loss[500].item()),
-                'NAU Loss @ 1000epoch':str(nau_loss[990].item()), 'Baseline Loss @ 1000epoch':str(base_loss[990].item()), 'Loss Diff (NAU-Basline) @ 1000epoch':str(nau_loss[990].item() - base_loss[990].item()), 
+                'NAU Loss @ 25epoch':str(nau_loss[25].item()), 'Baseline Loss @ 25epoch':str(base_loss[25].item()), 'Loss Diff (NAU-Baseline) @ 25epoch': str(nau_loss[25].item() - base_loss[25].item()),
+                'NAU Loss @ 50epoch':str(nau_loss[50].item()), 'Baseline Loss @ 50epoch':str(base_loss[50].item()), 'Loss Diff (NAU-Baseline) @ 50epoch': str(nau_loss[50].item() - base_loss[50].item()),
+                'NAU Loss @ 75epoch':str(nau_loss[75].item()), 'Baseline Loss @ 75epoch':str(base_loss[75].item()), 'Loss Diff (NAU-Baseline) @ 75epoch': str(nau_loss[75].item() - base_loss[75].item()),
+                'NAU Loss @ 100epoch':str(nau_loss[100].item()), 'Baseline Loss @ 100epoch':str(base_loss[100].item()), 'Loss Diff (NAU-Baseline) @ 100epoch': str(nau_loss[100].item() - base_loss[100].item()),
+                'NAU Loss @ 500epoch':str(nau_loss[490].item()), 'Baseline Loss @ 500epoch':str(base_loss[490].item()), 'Loss Diff (NAU-Baseline) @ 500epoch':str(nau_loss[490].item() - base_loss[490].item()), 
                 'NAU Training Time @ 1000epoch (sec)':str(nau_end - nau_start), 'Baseline Training Time @ 1000epoch (sec)':str(base_end - base_start)})
                     
