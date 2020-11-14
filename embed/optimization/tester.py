@@ -1261,7 +1261,7 @@ def train_nau(model, epochs):
         if(epoch_i % 500 == 0):
             print('train %d: %.5f' % (epoch_i, sum(mini_batch_loss)/len(mini_batch_loss)))
 
-    return smooth(losses, 5)
+    return (smooth(losses, 5), losses)
 
 """
 if __name__ == '__main__':
@@ -1493,7 +1493,7 @@ def train_baseline(model, epochs):
         if(epoch % 500 == 0):
             print('train %d: %.5f' % (epoch, sum(mini_batch_loss)/len(mini_batch_loss)))
 
-    return smooth(losses, 5)
+    return (smooth(losses, 5), losses)
 
 """
 if __name__ == '__main__':
@@ -1575,28 +1575,23 @@ ACTIVATIONS = {
 }
 """
 
-act_functions = ['linear', 'GELU', 'ReLU', 'Sigmoid','ELU', 'Tanh', 'ReLU6','LeakyReLU', 'RandReLU', 'SELU', 'CELU', 'Softplus', 'Hardshrink', 'Hardsigmoid' ,'Hardtanh', 'Hardswish', 'Tanhshrink']
+act_functions = ['linear'] #, 'GELU', 'ReLU', 'Sigmoid','ELU', 'Tanh', 'ReLU6','LeakyReLU', 'RandReLU', 'SELU', 'CELU', 'Softplus', 'Hardshrink', 'Hardsigmoid' ,'Hardtanh', 'Hardswish', 'Tanhshrink']
 num_layers = [1]
-hidden_dim = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]
-epoch_stop = 1000
+hidden_dim = [[1024, 1024]]
+configs = [('ReLU6', [2]), ('Softplus', [2]), ('Hardtanh', [4]),('RandReLU', [4]),('Softplus', [4]),('Tanhshrink', [4]),('Softplus', [8]),('Tanhshrink', [8]),('Sigmoid', [16]),('Softplus', [16]),('Hardswish', [32]),('Softplus', [32])]
+epoch_stop = 10000
 
 
-with open('two_layer_results.csv', 'w') as f:
+with open('10k_epochs2.csv', 'w') as f:
     fields = ['Dimensions', 'Activation', 'Total Memory Size (MB)', 
-            'NAU Loss @ 25epoch', 'Baseline Loss @ 25epoch', 'Loss Diff (NAU-Baseline) @ 25epoch',
-            'NAU Loss @ 50epoch', 'Baseline Loss @ 50epoch', 'Loss Diff (NAU-Baseline) @ 50epoch', 
-            'NAU Loss @ 75epoch', 'Baseline Loss @ 75epoch', 'Loss Diff (NAU-Baseline) @ 75epoch',
-            'NAU Loss @ 100epoch', 'Baseline Loss @ 100epoch', 'Loss Diff (NAU-Baseline) @ 100epoch',
-            'NAU Loss @ 500epoch', 'Baseline Loss @ 500epoch', 'Loss Diff (NAU-Baseline) @ 500epoch',
-            'NAU Loss @ 1000epoch', 'Baseline Loss @ 1000epoch', 'Loss Diff (NAU-Baseline) @ 1000epoch',
-            'NAU Training Time @ 1000epoch (sec)', 'Baseline Training Time @ 1000epoch (sec)']
+            'Final NAU Loss', 'Final Baseline Loss', 'Loss Diff',
+            'NAU Training Time (sec)', 'Baseline Training Time (sec)']
     writer = csv.DictWriter(f, fieldnames=fields, delimiter=',')
     writer.writeheader()
 
-    for act in act_functions:
-        for layer in num_layers:
-            for hid in hidden_dim:
-                i = (hid, hid)                
+    for conf in configs:
+                act, i = conf
+                
                 print("-----------------------------------------------------------------------")
                 print("Hidden Dims:", i)
                 print("Activation:", act)
@@ -1604,24 +1599,25 @@ with open('two_layer_results.csv', 'w') as f:
                 print("Training Baseline...")
                 base_start = time.time()
                 baseline = Baseline(i, act)
-                base_loss = train_baseline(baseline, epoch_stop)
+                base_loss, base_loss_unsmooth = train_baseline(baseline, epoch_stop)
+                base_loss = base_loss[:epoch_stop-5]
                 base_end = time.time()
 
                 print("Training NAU...")
                 nau_start = time.time()
                 nau = NAU(i, act, unit_name=LAYER_TYPE, input_size=INPUT_SIZE, hidden_size=HIDDEN_SIZE, nac_oob=OOB_MODE, regualizer_shape=REGUALIZER_SHAPE, regualizer_z=REGUALIZER_Z, mnac_epsilon=MNAC_EPSILON, writer=summary_writer.every(1000).verbose(VERBOSE), nac_mul=NAC_MUL)
-                nau_loss = train_nau(nau, epoch_stop)
-                nau_loss = nau_loss[:epoch_stop]
+                nau_loss, nau_loss_unsmooth = train_nau(nau, epoch_stop)
+                nau_loss = nau_loss[:epoch_stop-5]
                 nau_end = time.time()
                 
                 
-                t = np.arange(epoch_stop)
+                t = np.arange(epoch_stop-5)
                 plt.plot(t, base_loss, 'r', label='Baseline')
                 plt.plot(t, nau_loss, 'b', label='NAU')
-                plt.ylim(0, 0.6)
+                plt.ylim(0, 0.3)
                 plt.legend(loc='upper right')
                 plt.title('NAU vs. Baseline, Dim:%s, Act:%s' %(list2string(i), act))
-                plt.savefig('two_layer_loss_curves/%s%s' %(list2fn(i), act))
+                plt.savefig('10k_epochs/%s%s' %(list2fn(i), act))
                 plt.clf()
                 
                 
@@ -1637,11 +1633,6 @@ with open('two_layer_results.csv', 'w') as f:
 
                 writer.writerow({'Dimensions': list2csv(i), 'Activation': act, 
                 'Total Memory Size (MB)': sum(baseline.get_model_size())/8000000.0, 
-                'NAU Loss @ 25epoch':str(nau_loss[25].item()), 'Baseline Loss @ 25epoch':str(base_loss[25].item()), 'Loss Diff (NAU-Baseline) @ 25epoch': str(nau_loss[25].item() - base_loss[25].item()),
-                'NAU Loss @ 50epoch':str(nau_loss[50].item()), 'Baseline Loss @ 50epoch':str(base_loss[50].item()), 'Loss Diff (NAU-Baseline) @ 50epoch': str(nau_loss[50].item() - base_loss[50].item()),
-                'NAU Loss @ 75epoch':str(nau_loss[75].item()), 'Baseline Loss @ 75epoch':str(base_loss[75].item()), 'Loss Diff (NAU-Baseline) @ 75epoch': str(nau_loss[75].item() - base_loss[75].item()),
-                'NAU Loss @ 100epoch':str(nau_loss[100].item()), 'Baseline Loss @ 100epoch':str(base_loss[100].item()), 'Loss Diff (NAU-Baseline) @ 100epoch': str(nau_loss[100].item() - base_loss[100].item()),
-                'NAU Loss @ 500epoch':str(nau_loss[500].item()), 'Baseline Loss @ 500epoch':str(base_loss[500].item()), 'Loss Diff (NAU-Baseline) @ 500epoch':str(nau_loss[500].item() - base_loss[500].item()),
-                'NAU Loss @ 1000epoch':str(nau_loss[990].item()), 'Baseline Loss @ 1000epoch':str(base_loss[990].item()), 'Loss Diff (NAU-Baseline) @ 1000epoch':str(nau_loss[990].item() - base_loss[990].item()), 
-                'NAU Training Time @ 1000epoch (sec)':str(nau_end - nau_start), 'Baseline Training Time @ 1000epoch (sec)':str(base_end - base_start)})
+                'Final NAU Loss':str(nau_loss_unsmooth[len(nau_loss_unsmooth)-1].item()), 'Final Baseline Loss':str(base_loss_unsmooth[len(base_loss_unsmooth)-1].item()), 'Loss Diff': str(nau_loss_unsmooth[len(nau_loss_unsmooth)-1].item() - base_loss_unsmooth[len(base_loss_unsmooth)-1].item()),
+                'NAU Training Time (sec)':str(nau_end - nau_start), 'Baseline Training Time (sec)':str(base_end - base_start)})
                     
