@@ -1640,7 +1640,7 @@ with open('data.csv', 'w') as f:
     writer = csv.DictWriter(f, fieldnames=fields, delimiter=',')
     writer.writeheader()
 
-    for act in act_function:
+    for act in act_functions:
         for hid in hidden_dim:
                 i = [hid]
                 
