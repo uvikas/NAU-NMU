@@ -619,7 +619,9 @@ class NAU(ExtendedTorchModule):
             out = self.nau_layers[i](out)
 
             #print("Layer", i+1, ":", out.shape)
-        out = self.acts[0](out)
+        
+        if self.act_name != 'linear':
+            out = self.acts[0](out)
 
         return out
 
@@ -1468,7 +1470,8 @@ class Baseline(nn.Module):
             #print("Layer", i+1, ":", out.shape)
             out = self.linears[i](out)
 
-        out = self.acts[0](out)
+        if self.act_name != 'linear':
+            out = self.acts[0](out)
 
         return out
     
