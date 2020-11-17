@@ -13,12 +13,6 @@ import time
 import csv
 
 """
-Test NAU vs Baseline after epoch_stop epochs
-Compare MSE loss between two models for initial loss drop
-Log outputs
-"""
-
-"""
 =====================================================================
 NAU
 =====================================================================
@@ -65,7 +59,6 @@ class ExtendedTorchModule(torch.nn.Module):
 
         if merge_in is not None:
             for key, value in merge_in.items():
-                self.writer.add_scalar(f'regualizer/{key}', value)
                 regualizers[key] += value
 
         for module in self.children():
@@ -84,8 +77,8 @@ class ExtendedTorchModule(torch.nn.Module):
         for name, parameter in self.named_parameters(recurse=False):
             if parameter.requires_grad:
                 gradient, *_ = parameter.grad.data
-                self.writer.add_summary(f'{name}/grad', gradient)
-                self.writer.add_histogram(f'{name}/grad', gradient)
+                #self.writer.add_summary(f'{name}/grad', gradient)
+                #self.writer.add_histogram(f'{name}/grad', gradient)
 
         for module in self.children():
             if isinstance(module, ExtendedTorchModule):
@@ -277,9 +270,9 @@ class ReRegualizedLinearNACLayer(ExtendedTorchModule):
 
     def forward(self, input, reuse=False):
         W = torch.clamp(self.W, -1.0, 1.0)
-        self.writer.add_histogram('W', W)
-        self.writer.add_tensor('W', W)
-        self.writer.add_scalar('W/sparsity_error', sparsity_error(W), verbose_only=False)
+        #self.writer.add_histogram('W', W)
+        #self.writer.add_tensor('W', W)
+        #self.writer.add_scalar('W/sparsity_error', sparsity_error(W), verbose_only=False)
 
         return torch.nn.functional.linear(input, W, self.bias)
 
@@ -350,11 +343,6 @@ class ReRegualizedLinearMNACLayer(ExtendedTorchModule):
         W = torch.clamp(self.W, 0.0 + self.mnac_epsilon, 1.0) \
             if self.nac_oob == 'regualized' \
             else self.W
-
-        self.writer.add_histogram('W', W)
-        self.writer.add_tensor('W', W)
-        self.writer.add_scalar('W/sparsity_error', sparsity_error(W), verbose_only=False)
-
 
         if self.mnac_normalized:
             c = torch.std(x)
@@ -448,9 +436,6 @@ class BasicLayer(ExtendedTorchModule):
             torch.nn.init.zeros_(self.bias)
 
     def forward(self, input, reuse=False):
-        self.writer.add_histogram('W', self.W)
-        self.writer.add_tensor('W', self.W)
-        self.writer.add_scalar('W/sparsity_error', sparsity_error(self.W), verbose_only=False)
         return self.activation_fn(
             torch.nn.functional.linear(input, self.W, self.bias)
         )
@@ -629,9 +614,10 @@ class NAU(ExtendedTorchModule):
         #print("Flatten shape:", out.shape)
 
         for i in range(len(self.nau_layers)):
-            out = self.nau_layers[i](out)
             if self.act_name != 'linear':
                 out = self.acts[i](out)
+            out = self.nau_layers[i](out)
+
             #print("Layer", i+1, ":", out.shape)
 
 
@@ -1031,8 +1017,7 @@ class SimpleFunctionDatasetFork(torch.utils.data.Dataset):
         #print(embed(sums).shape)
 
         return (
-            torch.tensor(pairs, dtype=torch.int64),
-            torch.tensor(sums, dtype=torch.float32)
+            pairs, sums
         )
 
     def __len__(self):
@@ -1146,7 +1131,7 @@ MOMENTUM=0.5  #0.2
 NO_CUDA=False
 NAME_PREFIX='NAU'
 REMOVE_EXISTING_DATA=True
-VERBOSE=True
+VERBOSE=False
 MINI_BATCH_SIZE=16
 
 summary_writer = SummaryWriter(
@@ -1200,7 +1185,6 @@ def train_nau(model, epochs):
 
 
     # Train model
-    print('')
 
     losses = []
     for epoch_i, (x_train, t_train) in zip(range(epochs + 1), dataset_train):
@@ -1261,7 +1245,89 @@ def train_nau(model, epochs):
         if(epoch_i % 500 == 0):
             print('train %d: %.5f' % (epoch_i, sum(mini_batch_loss)/len(mini_batch_loss)))
 
-    return (smooth(losses, 5), losses)
+    return smooth(losses, 5)
+
+
+def train_nau_reg(model, epochs):
+    model.reset_parameters()
+
+    dataset_train = iter(dataset.fork(sample_range=INTERPOLATION_RANGE).dataloader(batch_size=BATCH_SIZE))
+    dataset_valid_interpolation_data = next(iter(dataset.fork(sample_range=INTERPOLATION_RANGE).dataloader(batch_size=10000)))
+    dataset_test_extrapolation_data = next(iter(dataset.fork(sample_range=EXTRAPOLATION_RANGE).dataloader(batch_size=10000)))
+
+    criterion = torch.nn.MSELoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
+    #optimizer = torch.optim.SGD(model.parameters(), lr=LEARNING_RATE, momentum=MOMENTUM)
+
+
+    def test_model(data):
+        with torch.no_grad(), model.no_internal_logging(), model.no_random():
+            x, t = data
+            return criterion(model(x), t)
+
+
+    # Train model
+
+    losses = []
+    for epoch_i, (x_train, t_train) in zip(range(epochs + 1), dataset_train):
+        mini_batch_loss = []
+        for mini in range(MINI_BATCH_SIZE):
+            summary_writer.set_iteration(epoch_i)
+
+            # Prepear model
+            model.set_parameter('tau', max(0.5, math.exp(-1e-5 * epoch_i)))
+            optimizer.zero_grad()
+
+            # Log validation
+            if epoch_i % 1000 == 0:
+                interpolation_error = test_model(dataset_valid_interpolation_data)
+                extrapolation_error = test_model(dataset_test_extrapolation_data)
+
+                summary_writer.add_scalar('metric/valid/interpolation', interpolation_error)
+                summary_writer.add_scalar('metric/test/extrapolation', extrapolation_error)
+
+            # forward
+            y_train = model(x_train)
+            regualizers = model.regualizer()
+
+            if (REGUALIZER_SCALING == 'linear'):
+                r_w_scale = max(0, min(1, (
+                    (epoch_i - REGUALIZER_SCALING_START) /
+                    (REGUALIZER_SCALING_END - REGUALIZER_SCALING_START)
+                )))
+            elif (REGUALIZER_SCALING == 'exp'):
+                r_w_scale = 1 - math.exp(-1e-5 * epoch_i)
+
+            loss_train_criterion = criterion(y_train, t_train)
+            mini_batch_loss.append(loss_train_criterion)
+            loss_train_regualizer = REGUALIZER * r_w_scale * regualizers['W'] + regualizers['g'] + REGUALIZER_Z * regualizers['z'] + REGUALIZER_OOB * regualizers['W-OOB']
+            loss_train = loss_train_criterion + loss_train_regualizer
+
+            # Log loss
+            if VERBOSE or epoch_i % 1000 == 0:
+                summary_writer.add_scalar('loss/train/critation', loss_train_criterion)
+                summary_writer.add_scalar('loss/train/regualizer', loss_train_regualizer)
+                summary_writer.add_scalar('loss/train/total', loss_train)
+            #if epoch_i % 1000 == 0:
+            #    print('train %d: %.5f, inter: %.5f, extra: %.5f' % (epoch_i, loss_train_criterion, interpolation_error, extrapolation_error))
+
+            # Optimize model
+            if loss_train.requires_grad:
+                loss_train.backward()
+                optimizer.step()
+            model.optimize(loss_train_criterion)
+
+            # Log gradients if in verbose mode
+            if VERBOSE and epoch_i % 1000 == 0:
+                model.log_gradients()
+            
+            #print(epoch_i, mini, loss_train.item())
+        
+        losses.append(sum(mini_batch_loss)/len(mini_batch_loss))
+        if(epoch_i % 500 == 0):
+            print('train %d: %.5f' % (epoch_i, sum(mini_batch_loss)/len(mini_batch_loss)))
+
+    return smooth(losses, 5)
 
 """
 if __name__ == '__main__':
@@ -1397,11 +1463,11 @@ class Baseline(nn.Module):
         #print("Flatten:", out.shape)
         
         for i in range(len(self.linears)):
-            out = self.linears[i](out)
             if self.act_name != 'linear':
                 out = self.acts[i](out)
             #print("Layer", i+1, ":", out.shape)
-            
+            out = self.linears[i](out)
+
         return out
     
         """
@@ -1452,8 +1518,7 @@ def dataset_gen(max_num, batch_size):
     sums = torch.sum(pairs, dim=1) % 256
     sums = sums.reshape(-1, 1).float() 
     sums = (sums-0) / 256.
-
-    return (torch.tensor(pairs, dtype=torch.int64), torch.tensor(sums, dtype=torch.float32))
+    return (pairs, sums)
 
 
 EPOCHS=5000000
@@ -1469,7 +1534,7 @@ def train_baseline(model, epochs):
 
     criterion = torch.nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    for epoch in range(epochs):
+    for epoch in range(epochs+1):
         mini_batch_loss = []
         for mini in range(MINI_BATCH_SIZE):
 
@@ -1493,7 +1558,7 @@ def train_baseline(model, epochs):
         if(epoch % 500 == 0):
             print('train %d: %.5f' % (epoch, sum(mini_batch_loss)/len(mini_batch_loss)))
 
-    return (smooth(losses, 5), losses)
+    return smooth(losses, 5)
 
 """
 if __name__ == '__main__':
@@ -1515,13 +1580,12 @@ if __name__ == '__main__':
         loss.backward()
         optimizer.step()
 """
+
 """
 =====================================================================
-TESTING
+UTIL
 =====================================================================
 """
-
-
 
 def combos(depth, dim_options):
     tmp = []
@@ -1552,72 +1616,64 @@ def list2csv(l):
     st += "1"
     return st
 
-"""
-ACTIVATIONS = {
-    'Tanh': nn.Tanh(),
-    'Sigmoid': nn.Sigmoid(),
-    'ReLU6': nn.ReLU6(),
-    'Softsign': nn.Softsign(),
-    'SELU': nn.SELU(),
-    'ELU': nn.ELU(),
-    'ReLU': nn.ReLU(),
-    'linear': lambda x: x,
-    'GELU' : torch.nn.GELU(),
-    'LeakyReLU':nn.LeakyReLU(), 
-    'RandReLU':nn.RReLU(),
-    'CELU': nn.CELU(),
-    'Softplus':nn.Softplus(),
-    'Hardshrink':nn.Hardshrink(),
-    'Hardsigmoid':nn.Hardsigmoid(),
-    'Hardtanh':nn.Hardtanh(),
-    'Hardswish':nn.Hardswish(),
-    'Tanhshrink':nn.Tanhshrink()
-}
-"""
-
-act_functions = ['linear'] #, 'GELU', 'ReLU', 'Sigmoid','ELU', 'Tanh', 'ReLU6','LeakyReLU', 'RandReLU', 'SELU', 'CELU', 'Softplus', 'Hardshrink', 'Hardsigmoid' ,'Hardtanh', 'Hardswish', 'Tanhshrink']
+act_functions = ['linear', 'GELU', 'ReLU', 'Sigmoid','ELU', 'Tanh', 'ReLU6','LeakyReLU', 'RandReLU', 'SELU', 'CELU', 'Softplus', 'Hardshrink', 'Hardsigmoid' ,'Hardtanh', 'Hardswish', 'Tanhshrink']
 num_layers = [1]
-hidden_dim = [[1024, 1024]]
-configs = [('ReLU6', [2]), ('Softplus', [2]), ('Hardtanh', [4]),('RandReLU', [4]),('Softplus', [4]),('Tanhshrink', [4]),('Softplus', [8]),('Tanhshrink', [8]),('Sigmoid', [16]),('Softplus', [16]),('Hardswish', [32]),('Softplus', [32])]
-epoch_stop = 10000
+hidden_dim = [4, 8, 16, 32, 64, 128, 256, 512, 1024]
+#configs = [('ReLU6', [2]), ('Softplus', [2]), ('Hardtanh', [4]),('RandReLU', [4]),('Softplus', [4]),('Tanhshrink', [4]),('Softplus', [8]),('Tanhshrink', [8]),('Sigmoid', [16]),('Softplus', [16]),('Hardswish', [32]),('Softplus', [32])]
+epoch_stop = 2000
 
 
-with open('10k_epochs2.csv', 'w') as f:
-    fields = ['Dimensions', 'Activation', 'Total Memory Size (MB)', 
-            'Final NAU Loss', 'Final Baseline Loss', 'Loss Diff',
-            'NAU Training Time (sec)', 'Baseline Training Time (sec)']
+with open('data.csv', 'w') as f:
+
+    fields = ['Dimensions', 'Activation', 
+            'Total Memory Size (MB)', 
+            'Final NAU Loss', 
+            'Final Baseline Loss', 
+            'Final NAU Reg Loss', 
+            'NAU-Baseline',
+            'NAU Training Time (sec)', 
+            'Baseline Training Time (sec)']
+
+
     writer = csv.DictWriter(f, fieldnames=fields, delimiter=',')
     writer.writeheader()
 
-    for conf in configs:
-                act, i = conf
+    for act in act_function:
+        for hid in hidden_dim:
+                i = [hid]
                 
                 print("-----------------------------------------------------------------------")
                 print("Hidden Dims:", i)
                 print("Activation:", act)
 
-                print("Training Baseline...")
+                print("\nTraining Baseline...")
                 base_start = time.time()
                 baseline = Baseline(i, act)
-                base_loss, base_loss_unsmooth = train_baseline(baseline, epoch_stop)
+                base_loss = train_baseline(baseline, epoch_stop)
                 base_loss = base_loss[:epoch_stop-5]
                 base_end = time.time()
 
-                print("Training NAU...")
+                print("\nTraining NAU...")
                 nau_start = time.time()
                 nau = NAU(i, act, unit_name=LAYER_TYPE, input_size=INPUT_SIZE, hidden_size=HIDDEN_SIZE, nac_oob=OOB_MODE, regualizer_shape=REGUALIZER_SHAPE, regualizer_z=REGUALIZER_Z, mnac_epsilon=MNAC_EPSILON, writer=summary_writer.every(1000).verbose(VERBOSE), nac_mul=NAC_MUL)
-                nau_loss, nau_loss_unsmooth = train_nau(nau, epoch_stop)
+                nau_loss = train_nau(nau, epoch_stop)
                 nau_loss = nau_loss[:epoch_stop-5]
                 nau_end = time.time()
+
+                print("\nTraining NAU Reg...")
+                naureg = NAU(i, act, unit_name=LAYER_TYPE, input_size=INPUT_SIZE, hidden_size=HIDDEN_SIZE, nac_oob=OOB_MODE, regualizer_shape=REGUALIZER_SHAPE, regualizer_z=REGUALIZER_Z, mnac_epsilon=MNAC_EPSILON, writer=summary_writer.every(1000).verbose(VERBOSE), nac_mul=NAC_MUL)
+                nau_loss_reg = train_nau_reg(naureg, epoch_stop)
+                nau_loss_reg = nau_loss_reg[:epoch_stop-5]
                 
-                
+
                 t = np.arange(epoch_stop-5)
                 plt.plot(t, base_loss, 'r', label='Baseline')
                 plt.plot(t, nau_loss, 'b', label='NAU')
-                plt.ylim(0, 0.3)
+                plt.plot(t, nau_loss_reg, 'g', label='NAU Reg')
+                plt.ylim(0, 0.5)
                 plt.legend(loc='upper right')
                 plt.title('NAU vs. Baseline, Dim:%s, Act:%s' %(list2string(i), act))
-                plt.savefig('10k_epochs/%s%s' %(list2fn(i), act))
+                plt.savefig('%s%s' %(list2fn(i), act))
                 plt.clf()
                 
                 
@@ -1633,6 +1689,10 @@ with open('10k_epochs2.csv', 'w') as f:
 
                 writer.writerow({'Dimensions': list2csv(i), 'Activation': act, 
                 'Total Memory Size (MB)': sum(baseline.get_model_size())/8000000.0, 
-                'Final NAU Loss':str(nau_loss_unsmooth[len(nau_loss_unsmooth)-1].item()), 'Final Baseline Loss':str(base_loss_unsmooth[len(base_loss_unsmooth)-1].item()), 'Loss Diff': str(nau_loss_unsmooth[len(nau_loss_unsmooth)-1].item() - base_loss_unsmooth[len(base_loss_unsmooth)-1].item()),
-                'NAU Training Time (sec)':str(nau_end - nau_start), 'Baseline Training Time (sec)':str(base_end - base_start)})
+                'Final NAU Loss':str(nau_loss[len(nau_loss)-1].item()), 
+                'Final NAU Reg Loss':str(nau_loss_reg[len(nau_loss_reg)-1].item()),
+                'Final Baseline Loss':str(base_loss[len(base_loss)-1].item()), 
+                'NAU-Baseline': str(nau_loss[len(nau_loss)-1].item() - base_loss[len(base_loss)-1].item()),
+                'NAU Training Time (sec)':str(nau_end - nau_start), 
+                'Baseline Training Time (sec)':str(base_end - base_start)})
                     
