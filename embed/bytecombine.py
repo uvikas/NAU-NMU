@@ -4,12 +4,6 @@ import math
 torch.manual_seed(0)
 
 class ReRegualizedLinearNACLayer(torch.nn.Module):
-    """Implements the RegualizedLinearNAC
-    Arguments:
-        in_features: number of ingoing features
-        out_features: number of outgoing features
-    """
-
     def __init__(self, in_features, out_features, **kwargs):
         super().__init__()
         self.in_features = in_features
