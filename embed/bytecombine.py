@@ -37,9 +37,7 @@ class ByteCombine(torch.nn.Module):
         self.layer_1 = ReRegualizedLinearNACLayer(input_dim, inner_dim)
         self.layer_2 = ReRegualizedLinearNACLayer(inner_dim, output_dim)
         self.act = torch.nn.GELU()
-
         self.reset_parameters()
-        self.z_1_stored = None
 
     def reset_parameters(self):
         self.layer_1.reset_parameters()
