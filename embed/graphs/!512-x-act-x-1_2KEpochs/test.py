@@ -683,7 +683,7 @@ THIS_DIR = path.dirname(path.realpath(__file__))
 if 'TENSORBOARD_DIR' in os.environ:
     TENSORBOARD_DIR = os.environ['TENSORBOARD_DIR']
 else:
-    TENSORBOARD_DIR = path.join(THIS_DIR, '../../../tensorboard')
+    TENSORBOARD_DIR = path.join(THIS_DIR, '../../../../tensorboard')
 
 class SummaryWriterNamespaceNoLoggingScope:
     def __init__(self, writer):
@@ -1470,7 +1470,7 @@ class Baseline(nn.Module):
             #print("Layer", i+1, ":", out.shape)
             out = self.linears[i](out)
             if i==0:
-                out = self.act[i](out)
+                out = self.acts[i](out)
 
         #out = self.acts[0](out)
         
@@ -1622,7 +1622,7 @@ def list2csv(l):
     st += "1"
     return st
 
-act_functions = ['linear', 'GELU', 'ReLU', 'Sigmoid','ELU', 'Tanh', 'ReLU6','LeakyReLU', 'RandReLU', 'SELU', 'CELU', 'Softplus', 'Hardshrink', 'Hardsigmoid' ,'Hardtanh', 'Hardswish', 'Tanhshrink']
+act_functions = ['ReLU', 'Sigmoid','ELU', 'Tanh', 'ReLU6','LeakyReLU', 'RandReLU', 'SELU', 'CELU', 'Softplus', 'Hardshrink', 'Hardsigmoid' ,'Hardtanh', 'Hardswish', 'Tanhshrink']
 num_layers = [1]
 hidden_dim = [4, 8, 16, 32, 64, 128, 256, 512, 1024]
 #configs = [('ReLU6', [2]), ('Softplus', [2]), ('Hardtanh', [4]),('RandReLU', [4]),('Softplus', [4]),('Tanhshrink', [4]),('Softplus', [8]),('Tanhshrink', [8]),('Sigmoid', [16]),('Softplus', [16]),('Hardswish', [32]),('Softplus', [32])]
