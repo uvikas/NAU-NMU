@@ -1,0 +1,6 @@
+Dimensions,Activation,Total Memory Size (MB),Final NAU Loss,Final Baseline Loss,NAU-Baseline,NAU Training Time (sec),Baseline Training Time (sec)
+2->512->4->1,RandReLU,0.276572,0.023995526134967804,0.023673564195632935,0.0003219619393348694,274.2980806827545,278.05765771865845
+Dimensions,Activation,Total Memory Size (MB),Final NAU Loss,Final Baseline Loss,NAU-Baseline,NAU Training Time (sec),Baseline Training Time (sec)
+2->512->4->1,ReLU6,0.276572,0.06208188459277153,0.03148327395319939,0.030598610639572144,452.6217770576477,482.35946583747864
+2->512->4->1,Softplus,0.276572,0.013617508113384247,0.048971567302942276,-0.03535405918955803,462.08197021484375,434.92610692977905
+Dimensions,Activation,Total Memory Size (MB),Final NAU Loss,Final Baseline Loss,NAU-Baseline,NAU Training Time (sec),Baseline Training Time (sec)

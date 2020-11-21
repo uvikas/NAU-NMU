@@ -18,6 +18,8 @@ NAU
 =====================================================================
 """
 
+EMBED_ACT=False
+
 def smooth(y, box_pts):
     box = np.ones(box_pts)/box_pts
     y_smooth = np.convolve(y, box, mode='same')
@@ -612,6 +614,8 @@ class NAU(ExtendedTorchModule):
         #print("Embed shape:", embedded.shape)
         out = torch.flatten(embedded, start_dim=1)
         #print("Flatten shape:", out.shape)
+        if EMBED_ACT:
+            out = self.acts[0](out)
 
         for i in range(len(self.nau_layers)):
             out = self.nau_layers[i](out)
@@ -1459,7 +1463,8 @@ class Baseline(nn.Module):
         #print("Embedding:", embedded.shape)
         out = torch.flatten(embedded, start_dim=1)
         #print("Flatten:", out.shape)
-        
+        if EMBED_ACT:
+            out = self.acts[0](out)
         for i in range(len(self.linears)):
             out = self.linears[i](out)
             if self.act_name != 'linear':
@@ -1616,11 +1621,12 @@ def list2csv(l):
 act_functions = ['linear', 'GELU', 'ReLU', 'Sigmoid','ELU', 'Tanh', 'ReLU6','LeakyReLU', 'RandReLU', 'SELU', 'CELU', 'Softplus', 'Hardshrink', 'Hardsigmoid' ,'Hardtanh', 'Hardswish', 'Tanhshrink']
 num_layers = [1]
 hidden_dim = [4, 8, 16, 32, 64, 128, 256, 512, 1024]
-configs = [('RandReLU', [4]), ('ReLU6', [4]),('Softplus', [4]),('ReLU', [8]),('Softplus', [8]),('ReLU6', [16]),('Softplus', [16]),('Softplus', [32]),('Softplus', [64]),('Tanh', [64]),('Softplus', [128]), ('Tanh', [128]), ('Softplus', [256]), ('Tanh', [256]), ('Softplus', [512]), ('Tanh', [512]), ('Softplus', [1024]),
-    ('Tanh', [1024])]
+configs = [('ReLU', [8]),('Softplus', [8]),('ReLU6', [16]),('Softplus', [16]),('Softplus', [32]),('Softplus', [64]),('Tanh', [64]),('Softplus', [128]), ('Tanh', [128]), ('Softplus', [256]), ('Tanh', [256]), ('Softplus', [512]), ('Tanh', [512]), ('Softplus', [1024]),
+    ('Tanh', [1024]), ('GELU', [4]), ('GELU', [8]), ('GELU', [16]), ('GELU', [32]), ('GELU', [64]), ('GELU', [128]), ('GELU', [256]), ('GELU', [512]), ('GELU', [1024])]
+
 epoch_stop = 10000
 
-f = open('data.csv', 'w')
+f = open('data.csv', 'a')
 
 fields = ['Dimensions', 'Activation',
         'Total Memory Size (MB)',
@@ -1658,7 +1664,7 @@ for conf in configs:
             t = np.arange(epoch_stop-5)
             plt.plot(t, base_loss, 'r', label='Baseline')
             plt.plot(t, nau_loss, 'b', label='NAU')
-            plt.ylim(0, 0.5)
+            plt.ylim(0, 0.2)
             plt.legend(loc='upper right')
             plt.title('NAU vs. Baseline, Dim:%s, Act:%s' %(list2string(i), act))
             plt.savefig('%s%s' %(list2fn(i), act))
