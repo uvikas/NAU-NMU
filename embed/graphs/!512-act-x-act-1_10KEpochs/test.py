@@ -679,7 +679,7 @@ THIS_DIR = path.dirname(path.realpath(__file__))
 if 'TENSORBOARD_DIR' in os.environ:
     TENSORBOARD_DIR = os.environ['TENSORBOARD_DIR']
 else:
-    TENSORBOARD_DIR = path.join(THIS_DIR, '../../../tensorboard')
+    TENSORBOARD_DIR = path.join(THIS_DIR, '../../../../tensorboard')
 
 class SummaryWriterNamespaceNoLoggingScope:
     def __init__(self, writer):
