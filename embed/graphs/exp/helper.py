@@ -6,6 +6,8 @@ from sklearn.manifold import TSNE
 epoch_stop=2000
 
 plt.rcParams["font.family"] = "Times New Roman"
+plt.rcParams["legend.handlelength"] = 4.0
+
 plt.rc('xtick', labelsize=24)
 plt.rc('ytick', labelsize=24)
 
@@ -33,7 +35,7 @@ def plot_graph(naul, basel, fn):
     fig2 = plt.figure()
     ax2 = fig2.add_subplot()
     ax2.axis('off')
-    legend = ax2.legend(*ax1.get_legend_handles_labels(), frameon=False, loc='center', ncol=10)
+    legend = ax2.legend(*ax1.get_legend_handles_labels(), frameon=False, loc='center', ncol=10, )
     fig = legend.figure
     fig.canvas.draw()
     #bbox = legend.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
