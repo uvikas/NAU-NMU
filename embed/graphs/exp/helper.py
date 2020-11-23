@@ -18,8 +18,8 @@ def plot_graph(naul, basel, fn):
     basetemp[0] = 0.5
     nautemp = naul[(-epoch_stop+10):]
     nautemp[0] = 0.5
-    plt.plot(t, basetemp, 'C2', label='Baseline')
-    plt.plot(t, nautemp, 'C3', label='NAU')
+    plt.plot(t, basetemp, 'C3', label='Baseline')
+    plt.plot(t, nautemp, 'C0', label='NAU')
     plt.ylim(0, 0.3)
     plt.xlabel('Epochs')
     plt.ylabel('MSE Loss')
