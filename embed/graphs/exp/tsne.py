@@ -1621,10 +1621,12 @@ def list2csv(l):
 act_functions = ['linear', 'GELU', 'ReLU', 'Sigmoid','ELU', 'Tanh', 'ReLU6','LeakyReLU', 'RandReLU', 'SELU', 'CELU', 'Softplus', 'Hardshrink', 'Hardsigmoid' ,'Hardtanh', 'Hardswish', 'Tanhshrink']
 num_layers = [1]
 hidden_dim = [4, 8, 16, 32, 64, 128, 256, 512, 1024]
-configs = [('ReLU', [8]),('Softplus', [8]),('ReLU6', [16]),('Softplus', [16]),('Softplus', [32]),('Softplus', [64]),('Tanh', [64]),('Softplus', [128]), ('Tanh', [128]), ('Softplus', [256]), ('Tanh', [256]), ('Softplus', [512]), ('Tanh', [512]), ('Softplus', [1024]),
-    ('Tanh', [1024]), ('GELU', [4]), ('GELU', [8]), ('GELU', [16]), ('GELU', [32]), ('GELU', [64]), ('GELU', [128]), ('GELU', [256]), ('GELU', [512]), ('GELU', [1024])]
+#configs = [('ReLU', [8]),('Softplus', [8]),('ReLU6', [16]),('Softplus', [16]),('Softplus', [32]),('Softplus', [64]),('Tanh', [64]),('Softplus', [128]), ('Tanh', [128]), ('Softplus', [256]), ('Tanh', [256]), ('Softplus', [512]), ('Tanh', [512]), ('Softplus', [1024]),
+#    ('Tanh', [1024]), ('GELU', [4]), ('GELU', [8]), ('GELU', [16]), ('GELU', [32]), ('GELU', [64]), ('GELU', [128]), ('GELU', [256]), ('GELU', [512]), ('GELU', [1024])]
 
-configs = [('linear', [1024]), ('Softplus', [1024])]
+#configs = [('linear', [1024]), ('Softplus', [1024])]
+
+configs = [[1], [1024], [1024, 1024], [1], [512], [512, 512], [1], [256], [256, 256]]
 
 epoch_stop = 2500
 """
@@ -1650,8 +1652,8 @@ baselineembed = []
 nauembed = []
 
 
-for conf in configs:
-            act, i = conf
+for i in configs:
+            act='GELU'
             
             print("-----------------------------------------------------------------------")
             print("Hidden Dims:", i)
@@ -1685,8 +1687,7 @@ for conf in configs:
             plt.title('NAU vs. Baseline, Dim:%s, Act:%s' %(list2string(i), act))
             plt.savefig('%s%s' %(list2fn(i), act))
             plt.clf()
-
-
+            
             """
             writer.writerow({'Dimensions': list2csv(i), 'Activation': act,
             'Total Memory Size (MB)': sum(baseline.get_model_size())/8000000.0,
@@ -1696,6 +1697,6 @@ for conf in configs:
             'NAU Training Time (sec)':str(nau_end - nau_start),
             'Baseline Training Time (sec)':str(base_end - base_start)})
             """
-                
+
 #f.close()
 
