@@ -3,13 +3,13 @@ import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 
-epoch_stop=2500
+epoch_stop=2000
 
 plt.rcParams["font.family"] = "Times New Roman"
-plt.rc('xtick', labelsize=18)
-plt.rc('ytick', labelsize=18)
+plt.rc('xtick', labelsize=24)
+plt.rc('ytick', labelsize=24)
 
-plt.rc('axes', labelsize=18)
+plt.rc('axes', labelsize=24)
 
 
 def plot_graph(naul, basel, fn):
