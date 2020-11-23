@@ -13,18 +13,42 @@ plt.rc('axes', labelsize=24)
 
 
 def plot_graph(naul, basel, fn):
+    
+    fig1 = plt.figure()
+    ax1 = fig1.add_subplot()
+    
     t = np.arange(epoch_stop-10)
     basetemp = basel[(-epoch_stop+10):]
     basetemp[0] = 0.5
     nautemp = naul[(-epoch_stop+10):]
     nautemp[0] = 0.5
-    plt.plot(t, basetemp, 'C3', label='Baseline')
-    plt.plot(t, nautemp, 'C0', label='NAU')
-    plt.ylim(0, 0.3)
-    plt.xlabel('Epochs')
-    plt.ylabel('MSE Loss')
-    plt.savefig('1024_%s.pdf' %fn, transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
-    plt.clf()
+    ax1.plot(t, basetemp, 'C3', label='Baseline')
+    ax1.plot(t, nautemp, 'C0', label='NAU')
+    #ax1.ylim(0, 0.3)
+    #ax1.xlabel('Epochs')
+    #ax1.ylabel('MSE Loss')
+    #ax1.gca().set_axis_off()
+    #ax1.show()
+    
+    fig2 = plt.figure()
+    ax2 = fig2.add_subplot()
+    ax2.axis('off')
+    legend = ax2.legend(*ax1.get_legend_handles_labels(), frameon=False, loc='center', ncol=10)
+    fig = legend.figure
+    fig.canvas.draw()
+    #bbox = legend.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+    fig.savefig('legend.pdf', bbox_inches='tight', pad_inches=0, dpi=200, transparent=True)
+    
+    #plt.savefig('1024_%s.pdf' %fn, transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
+    #plt.clf()
+    """
+    fig_legend = plt.figure()
+    fig, ax = plt.subplots(figsize=(10, 4))
+    ax.legend((ax1, ax2), sys, loc='upper center', bbox_to_anchor=(0.5, 1.2), ncol=2, fancybox=True, shadow=True, frameon=False, handlelength=4, fontsize=25)
+    fig_legend.legend((ax1, ax2), sys, loc='upper center', ncol=3, frameon=False, handlelength=3, fontsize=18)
+    fig_legend.savefig('legend.pdf', transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
+    """
+    
 
 def tsne_graph(weights, fn):
     pca = PCA(n_components=40)
