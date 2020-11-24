@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
+import matplotlib as mpl
 
 epoch_stop=2000
 
@@ -64,46 +65,80 @@ def tsne_graph(weights, fn):
     plt.savefig('tsne_%s' %fn, transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
     plt.clf()
 
+def bar_graphs(i):
+    models = ['Baseline', 'NAU']
+    x = np.arange(3)+1
+    
+    Baseline = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+    NAU = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
 
-"""
-import matplotlib.pyplot as plt
-import numpy as np
+    fig_legend = plt.figure()
+    fig, ax = plt.subplots(figsize=(10, 4))
+    
+    patterns = ["+", "x"]
+    ax1 = ax.bar(x - 0.15, Baseline[i], width=0.3, hatch=patterns[0], align='center', alpha=0.7, color='C3', edgecolor='black')
+    ax2 = ax.bar(x + 0.15, NAU[i], width=0.3, hatch=patterns[1], align='center', alpha=0.7, color='C0', edgecolor='black')
+    plt.xlim([0, 10])
+    ax.set_xticks(x)
+    ax.set_xticklabels(['256', '512', '1024'], fontsize=30)
+    ax.legend((ax1, ax2), models, loc='upper center', bbox_to_anchor=(0.5, 1.2), ncol=2, fancybox=True, shadow=True, frameon=False, handlelength=4, fontsize=25)
+    plt.ylabel('Final MSE Loss')
+    plt.show()
+    
+    
 
-import matplotlib as mpl
+def bar_graph_ex():
 
-mpl.rc('font', family='Times New Roman')
+    mpl.rc('font', family='Times New Roman')
 
-sys = ['Debin', 'StateFormer']
-x = np.arange(3) + 1
+    sys = ['Baseline', 'NAU']
+    x = np.arange(3) + 1
+    
+    """
+    Layer 2
+                Baseline        NAU
+    1024        0.01205         0.00683
+    512         0.01231         0.00826
+    256         0.01257         0.01112
+    
+    Layer 3
+                Baseline        NAU
+    1024        0.01949         0.00454
+    512         0.02177         0.00759
+    256         0.02427         0.00824
+    """
+    
 
-Debin = [0.606, 0.661, 0.461] # 0.576
-StateFormer = [0.98, 0.98, 0.99] # 0.983
+    #Baseline = [0.01257, 0.01231, 0.01205]    # 0.576
+    #NAU = [0.01112, 0.00826, 0.00683]         # 0.983
+    
+    Baseline = [0.02427, 0.02177 , 0.01949]
+    NAU = [0.00824, 0.00759, 0.00454]
+    
+    fig_legend = plt.figure()
+    fig, ax = plt.subplots(figsize=(10, 4))
 
-fig_legend = plt.figure()
-fig, ax = plt.subplots(figsize=(10, 4))
+    patterns = ["+", "x"]
+    ax1 = ax.bar(x - .15, Baseline, width=0.3, hatch=patterns[0], align='center', alpha=0.7, color='C3',
+    edgecolor='black')
+    ax2 = ax.bar(x + .15, NAU, width=0.3, hatch=patterns[1], align='center', alpha=0.7, color='C0',
+    edgecolor='black')
 
-patterns = ["+", "x"]
-ax1 = ax.bar(x - .15, Debin, width=0.3, hatch=patterns[0], align='center', alpha=0.7, color='C0',
-edgecolor='black')
-ax2 = ax.bar(x + .15, StateFormer, width=0.3, hatch=patterns[1], align='center', alpha=0.7, color='C3',
-edgecolor='black')
+    # ax.tick_params(axis='both', which='major', labelsize=18)
 
-# ax.tick_params(axis='both', which='major', labelsize=18)
+    plt.xlim([0.5, len(x) + 0.5])
+    ax.set_xticks(x)
+    ax.set_xticklabels(['256', '512', '1024'], fontsize=30)
 
-plt.xlim([0.5, len(x) + 0.5])
-ax.set_xticks(x)
-ax.set_xticklabels(['bcf', 'cff', 'sub'], fontsize=30)
+    ax.legend((ax1, ax2), sys, loc='upper center', bbox_to_anchor=(0.5, 1.2),
+    ncol=2, fancybox=True, shadow=True, frameon=False, handlelength=4, fontsize=25)
 
-ax.legend((ax1, ax2), sys, loc='upper center', bbox_to_anchor=(0.5, 1.2),
-ncol=2, fancybox=True, shadow=True, frameon=False, handlelength=4, fontsize=25)
+    plt.ylabel('MSE Loss', fontsize=20)
 
-plt.ylabel('F1 score', fontsize=20)
+    #plt.show()
+    plt.savefig('4Layer_Bar.pdf', transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
 
-# plt.show()
-plt.savefig('figs/debin-obf.pdf', transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
+    fig_legend.legend((ax1, ax2), sys, loc='upper center', ncol=3, frameon=False, handlelength=3,
+    fontsize=18)
+    fig_legend.savefig('bar_legend.pdf', transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
 
-# fig_legend.legend((ax1, ax2), sys, loc='upper center', ncol=3, frameon=False, handlelength=3,
-# fontsize=18)
-# fig_legend.savefig(f'figs/debin-obf-legend.pdf', transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
-
-"""
