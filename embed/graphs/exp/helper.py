@@ -62,7 +62,7 @@ def tsne_graph(weights, fn):
     col = np.arange(0, 256)
     plt.scatter(tsne_res[:, 0], tsne_res[:, 1], c=col, alpha=0.3, cmap='viridis')
     plt.colorbar()
-    plt.savefig('tsne_%s' %fn, transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
+    plt.savefig('tsne_%s.pdf' %fn, transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
     plt.clf()
 
 def bar_graphs(i):
@@ -109,14 +109,14 @@ def bar_graph_ex():
     """
     
 
-    #Baseline = [0.01257, 0.01231, 0.01205]    # 0.576
-    #NAU = [0.01112, 0.00826, 0.00683]         # 0.983
+    Baseline = [0.01257, 0.01231, 0.01205]    # 0.576
+    NAU = [0.01112, 0.00826, 0.00683]         # 0.983
     
-    Baseline = [0.02427, 0.02177 , 0.01949]
-    NAU = [0.00824, 0.00759, 0.00454]
+    #Baseline = [0.02427, 0.02177 , 0.01949]
+    #NAU = [0.00824, 0.00759, 0.00454]
     
     fig_legend = plt.figure()
-    fig, ax = plt.subplots(figsize=(10, 4))
+    fig, ax = plt.subplots(figsize=(10, 6))
 
     patterns = ["+", "x"]
     ax1 = ax.bar(x - .15, Baseline, width=0.3, hatch=patterns[0], align='center', alpha=0.7, color='C3',
@@ -136,9 +136,9 @@ def bar_graph_ex():
     plt.ylabel('MSE Loss', fontsize=20)
 
     #plt.show()
-    plt.savefig('4Layer_Bar.pdf', transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
+    plt.savefig('2Layer_Bar.pdf', transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
 
-    fig_legend.legend((ax1, ax2), sys, loc='upper center', ncol=3, frameon=False, handlelength=3,
-    fontsize=18)
-    fig_legend.savefig('bar_legend.pdf', transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
+    #fig_legend.legend((ax1, ax2), sys, loc='upper center', ncol=3, frameon=False, handlelength=3,
+    #fontsize=18)
+    #fig_legend.savefig('bar_legend.pdf', transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
 
