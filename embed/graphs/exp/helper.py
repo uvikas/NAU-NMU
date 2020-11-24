@@ -109,11 +109,11 @@ def bar_graph_ex():
     """
     
 
-    Baseline = [0.01257, 0.01231, 0.01205]    # 0.576
-    NAU = [0.01112, 0.00826, 0.00683]         # 0.983
+    #Baseline = [0.01257, 0.01231, 0.01205]    # 0.576
+    #NAU = [0.01112, 0.00826, 0.00683]         # 0.983
     
-    #Baseline = [0.02427, 0.02177 , 0.01949]
-    #NAU = [0.00824, 0.00759, 0.00454]
+    Baseline = [0.02427, 0.02177 , 0.01949]
+    NAU = [0.00824, 0.00759, 0.00454]
     
     fig_legend = plt.figure()
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -130,13 +130,13 @@ def bar_graph_ex():
     ax.set_xticks(x)
     ax.set_xticklabels(['256', '512', '1024'], fontsize=30)
 
-    ax.legend((ax1, ax2), sys, loc='upper center', bbox_to_anchor=(0.5, 1.2),
-    ncol=2, fancybox=True, shadow=True, frameon=False, handlelength=4, fontsize=25)
+    #ax.legend((ax1, ax2), sys, loc='upper center', bbox_to_anchor=(0.5, 1.2),
+    #ncol=2, fancybox=True, shadow=True, frameon=False, handlelength=4, fontsize=25)
 
     plt.ylabel('MSE Loss', fontsize=20)
 
     #plt.show()
-    plt.savefig('2Layer_Bar.pdf', transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
+    plt.savefig('3Layer_Bar.pdf', transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
 
     #fig_legend.legend((ax1, ax2), sys, loc='upper center', ncol=3, frameon=False, handlelength=3,
     #fontsize=18)
