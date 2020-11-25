@@ -63,12 +63,10 @@ def tsne_graph(weights, fn):
     tsne_res = tsne.fit_transform(pca_res)
     col = np.arange(0, 256)
     
-    plt.figure(figsize=(4, 4))
+    plt.figure(figsize=(4, 3))
         
-    sc = plt.scatter(tsne_res[:, 0], tsne_res[:, 1], c=col, alpha=1.0, cmap='seismic')
-    plt.xlabel('tSNE1')
-    plt.ylabel('tSNE2')
-    
+    sc = plt.scatter(tsne_res[:, 0], tsne_res[:, 1], c=col, alpha=1.0, cmap='jet')
+    plt.colorbar(pad=0.01)
     plt.savefig('tsne_%s.pdf' %fn, transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
     
     #fig1, ax1 = plt.subplots(figsize=(10, 6))
