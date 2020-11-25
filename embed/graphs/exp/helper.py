@@ -54,18 +54,27 @@ def plot_graph(naul, basel, fn):
     
 
 def tsne_graph(weights, fn):
+    plt.clf()
+    
     pca = PCA(n_components=40)
     pca_res = pca.fit_transform(weights)
     print('Variance PCA: {}'.format(np.sum(pca.explained_variance_ratio_)))
     tsne = TSNE(n_components=2, verbose=1)
     tsne_res = tsne.fit_transform(pca_res)
     col = np.arange(0, 256)
-    plt.scatter(tsne_res[:, 0], tsne_res[:, 1], c=col, alpha=1.0, cmap='seismic')
-    #plt.colorbar()
+    
+    plt.figure(figsize=(4, 4))
+        
+    sc = plt.scatter(tsne_res[:, 0], tsne_res[:, 1], c=col, alpha=1.0, cmap='seismic')
     plt.xlabel('tSNE1')
     plt.ylabel('tSNE2')
+    
     plt.savefig('tsne_%s.pdf' %fn, transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
-    plt.clf()
+    
+    #fig1, ax1 = plt.subplots(figsize=(10, 6))
+    #plt.colorbar(sc, ax=ax1)
+    #ax1.remove()
+    #plt.savefig('tsne_legend.pdf', bbox_inches='tight')
 
 def bar_graphs(i):
     models = ['Baseline', 'NAU']
