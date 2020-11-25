@@ -18,7 +18,7 @@ NAU
 =====================================================================
 """
 
-EMBED_ACT=True
+EMBED_ACT=False
 
 def smooth(y, box_pts):
     box = np.ones(box_pts)/box_pts
@@ -1626,7 +1626,9 @@ hidden_dim = [4, 8, 16, 32, 64, 128, 256, 512, 1024]
 
 #configs = [('linear', [1024]), ('Softplus', [1024])]
 
-configs = [[1], [1024], [1024, 1024], [1], [512], [512, 512], [1], [256], [256, 256]]
+#configs = [[1], [1024], [1024, 1024], [1], [512], [512, 512], [1], [256], [256, 256]]
+
+configs = [[1024]]
 
 epoch_stop = 2500
 """
@@ -1679,14 +1681,14 @@ for i in configs:
             nauloss.append(nau_loss)
             nauembed.append(list(nau.parameters())[0].detach().numpy())
 
-            t = np.arange(epoch_stop-5)
-            plt.plot(t, base_loss, 'r', label='Baseline')
-            plt.plot(t, nau_loss, 'b', label='NAU')
-            plt.ylim(0, 0.5)
-            plt.legend(loc='upper right')
-            plt.title('NAU vs. Baseline, Dim:%s, Act:%s' %(list2string(i), act))
-            plt.savefig('%s%s' %(list2fn(i), act))
-            plt.clf()
+            #t = np.arange(epoch_stop-5)
+            #plt.plot(t, base_loss, 'r', label='Baseline')
+            #plt.plot(t, nau_loss, 'b', label='NAU')
+            #plt.ylim(0, 0.5)
+            #plt.legend(loc='upper right')
+            #plt.title('NAU vs. Baseline, Dim:%s, Act:%s' %(list2string(i), act))
+            #plt.savefig('%s%s' %(list2fn(i), act))
+            #plt.clf()
             
             """
             writer.writerow({'Dimensions': list2csv(i), 'Activation': act,

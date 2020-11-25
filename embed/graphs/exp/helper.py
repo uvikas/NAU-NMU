@@ -4,7 +4,7 @@ from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 import matplotlib as mpl
 
-epoch_stop=2000
+epoch_stop=2500
 
 plt.rcParams["font.family"] = "Times New Roman"
 plt.rcParams["legend.handlelength"] = 4.0
@@ -60,8 +60,10 @@ def tsne_graph(weights, fn):
     tsne = TSNE(n_components=2, verbose=1)
     tsne_res = tsne.fit_transform(pca_res)
     col = np.arange(0, 256)
-    plt.scatter(tsne_res[:, 0], tsne_res[:, 1], c=col, alpha=0.3, cmap='viridis')
-    plt.colorbar()
+    plt.scatter(tsne_res[:, 0], tsne_res[:, 1], c=col, alpha=1.0, cmap='seismic')
+    #plt.colorbar()
+    plt.xlabel('tSNE1')
+    plt.ylabel('tSNE2')
     plt.savefig('tsne_%s.pdf' %fn, transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
     plt.clf()
 
