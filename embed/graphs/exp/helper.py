@@ -116,7 +116,7 @@ def plot_zooms(naul, basel, fn, s, locc, box):
 
         return pp, p1, p2
 
-    mark_inset(ax, axins, loc1a=3, loc1b=3, loc2a=1, loc2b=1, fc="none", ec="0.5")
+    mark_inset(ax, axins, loc1a=2, loc1b=2, loc2a=4, loc2b=4, fc="none", ec="0.5")
     plt.xticks(visible=False)
     plt.yticks(visible=False)
 
