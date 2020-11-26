@@ -92,11 +92,11 @@ def plot_zooms(naul, basel, fn):
     plt.xlabel('Epochs')
     plt.ylabel('MSE Loss')
 
-    axins = zoomed_inset_axes(ax, 1.9, loc=2, bbox_to_anchor=(80, 290))
+    axins = zoomed_inset_axes(ax, 2.5, loc=2, bbox_to_anchor=(200, 290))
     axins.plot(t, basetemp, 'C3', label='Baseline')
     axins.plot(t, nautemp, 'C0', label='NAU')
 
-    x1, x2, y1, y2 = 1000, 2000, 0.07, 0.12
+    x1, x2, y1, y2 = 1750, 2000, 0.07, 0.12
     axins.set_xlim(x1,x2)
     axins.set_ylim(y1,y2)
 
@@ -116,12 +116,12 @@ def plot_zooms(naul, basel, fn):
 
         return pp, p1, p2
 
-    mark_inset(ax, axins, loc1a=4, loc1b=1, loc2a=3, loc2b=2, fc="none", ec="0.5")
+    mark_inset(ax, axins, loc1a=3, loc1b=3, loc2a=1, loc2b=1, fc="none", ec="0.5")
     plt.xticks(visible=False)
     plt.yticks(visible=False)
 
-    plt.savefig('1024_%s.pdf' %fn, transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
-    plt.show()
+    plt.savefig('zooms/1024_%s.pdf' %fn, transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
+    #plt.show()
     
 
 def tsne_graph(weights, fn):
