@@ -65,7 +65,7 @@ def tsne_graph(weights, fn):
     
     plt.figure(figsize=(4, 3))
         
-    sc = plt.scatter(tsne_res[:, 0], tsne_res[:, 1], c=col, alpha=1.0, cmap='jet')
+    sc = plt.scatter(tsne_res[:, 0], tsne_res[:, 1], c=col, alpha=1.0, cmap='nipy_spectral')
     plt.colorbar(pad=0.0)
     plt.savefig('tsne_%s.pdf' %fn, transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
     
@@ -145,9 +145,9 @@ def bar_graph_ex():
     plt.ylabel('MSE Loss', fontsize=20)
 
     #plt.show()
-    plt.savefig('3Layer_Bar.pdf', transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
+    plt.savefig('3Layer_Bar1.pdf', transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
 
-    #fig_legend.legend((ax1, ax2), sys, loc='upper center', ncol=3, frameon=False, handlelength=3,
-    #fontsize=18)
-    #fig_legend.savefig('bar_legend.pdf', transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
+    fig_legend.legend((ax1, ax2), sys, loc='upper center', ncol=3, frameon=False, handlelength=6,
+    fontsize=18)
+    fig_legend.savefig('bar_legend.pdf', transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
 
