@@ -76,7 +76,7 @@ def plot_graph(naul, basel, fn):
     """
 
 
-def plot_zooms(naul, basel, fn):
+def plot_zooms(naul, basel, fn, s, locc, box):
 
     t = np.arange(epoch_stop-10)
     basetemp = basel[(-epoch_stop+10):]
@@ -92,11 +92,11 @@ def plot_zooms(naul, basel, fn):
     plt.xlabel('Epochs')
     plt.ylabel('MSE Loss')
 
-    axins = zoomed_inset_axes(ax, 2.5, loc=2, bbox_to_anchor=(200, 290))
+    axins = zoomed_inset_axes(ax, s, loc=6, bbox_to_anchor=locc)
     axins.plot(t, basetemp, 'C3', label='Baseline')
     axins.plot(t, nautemp, 'C0', label='NAU')
 
-    x1, x2, y1, y2 = 1750, 2000, 0.07, 0.12
+    x1, x2, y1, y2 = box
     axins.set_xlim(x1,x2)
     axins.set_ylim(y1,y2)
 
@@ -123,6 +123,14 @@ def plot_zooms(naul, basel, fn):
     plt.savefig('zooms/1024_%s.pdf' %fn, transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
     #plt.show()
     
+    
+    """
+    linear 2.5 (200, 290) (1750, 2000, 0.07, 0.12) loc1a=3, loc1b=3, loc2a=1, loc2b=1
+    
+    
+    
+    
+    """
 
 def tsne_graph(weights, fn):
     plt.clf()
