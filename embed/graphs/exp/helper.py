@@ -4,7 +4,13 @@ from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 import matplotlib as mpl
 
-epoch_stop=2500
+from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
+from mpl_toolkits.axes_grid1.inset_locator import mark_inset
+from mpl_toolkits.axes_grid1.inset_locator import TransformedBbox, BboxPatch, BboxConnector
+
+
+
+epoch_stop=2000
 
 plt.rcParams["font.family"] = "Times New Roman"
 plt.rcParams["legend.handlelength"] = 4.0
@@ -17,33 +23,50 @@ plt.rc('axes', labelsize=14)
 
 def plot_graph(naul, basel, fn):
     
-    fig1 = plt.figure()
-    ax1 = fig1.add_subplot()
+    fig, ax = plt.subplots()
+    #ax1 = fig1.add_subplot()
     
     t = np.arange(epoch_stop-10)
     basetemp = basel[(-epoch_stop+10):]
     basetemp[0] = 0.5
     nautemp = naul[(-epoch_stop+10):]
     nautemp[0] = 0.5
-    ax1.plot(t, basetemp, 'C3', label='Baseline')
-    ax1.plot(t, nautemp, 'C0', label='NAU')
-    #ax1.ylim(0, 0.3)
-    #ax1.xlabel('Epochs')
-    #ax1.ylabel('MSE Loss')
-    #ax1.gca().set_axis_off()
-    #ax1.show()
     
-    fig2 = plt.figure()
-    ax2 = fig2.add_subplot()
-    ax2.axis('off')
-    legend = ax2.legend(*ax1.get_legend_handles_labels(), frameon=False, loc='center', ncol=10, )
-    fig = legend.figure
-    fig.canvas.draw()
+    ax.plot(t, basetemp, 'C3', label='Baseline')
+    ax.plot(t, nautemp, 'C0', label='NAU')
+    
+    #plt.ylim(0, 0.3)
+    #plt.xlabel('Epochs')
+    #plt.ylabel('MSE Loss')
+    
+    axins = zoomed_inset_axes(ax, 6, loc=1)
+    axins.plot(t, basetemp, 'C3', label='Baseline')
+    axins.plot(t, nautemp, 'C0', label='NAU')
+    
+    x1, x2, y1, y2 = 1000, 2000, 0, 0.1
+    axins.set_xlim(x1, x2)
+    axins.set_ylim(y1, y2)
+    
+    mark_inset(ax, axins, loc1=0.2, loc2=0.2, fc="none", ec="0.5")
+    
+    plt.xticks(visible=False)
+    plt.yticks(visible=False)
+    
+    #ax.gca().set_axis_off()
+    plt.draw()
+    plt.show()
+    
+    #fig2 = plt.figure()
+    #ax2 = fig2.add_subplot()
+    #ax2.axis('off')
+    #legend = ax2.legend(*ax1.get_legend_handles_labels(), frameon=False, loc='center', ncol=10, )
+    #fig = legend.figure
+    #fig.canvas.draw()
     #bbox = legend.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
-    fig.savefig('legend.pdf', bbox_inches='tight', pad_inches=0, dpi=200, transparent=True)
+    #fig.savefig('legend.pdf', bbox_inches='tight', pad_inches=0, dpi=200, transparent=True)
     
-    #plt.savefig('1024_%s.pdf' %fn, transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
-    #plt.clf()
+    plt.savefig('1024_%s.pdf' %fn, transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
+    plt.clf()
     """
     fig_legend = plt.figure()
     fig, ax = plt.subplots(figsize=(10, 4))
@@ -51,6 +74,54 @@ def plot_graph(naul, basel, fn):
     fig_legend.legend((ax1, ax2), sys, loc='upper center', ncol=3, frameon=False, handlelength=3, fontsize=18)
     fig_legend.savefig('legend.pdf', transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
     """
+
+
+def plot_zooms(naul, basel, fn):
+
+    t = np.arange(epoch_stop-10)
+    basetemp = basel[(-epoch_stop+10):]
+    basetemp[0] = 0.5
+    nautemp = naul[(-epoch_stop+10):]
+    nautemp[0] = 0.5
+
+    fig, ax = plt.subplots()
+    ax.plot(t, basetemp, 'C3', label='Baseline')
+    ax.plot(t, nautemp, 'C0', label='NAU')
+    
+    plt.ylim(0, 0.3)
+    plt.xlabel('Epochs')
+    plt.ylabel('MSE Loss')
+
+    axins = zoomed_inset_axes(ax, 1.9, loc=2, bbox_to_anchor=(80, 290))
+    axins.plot(t, basetemp, 'C3', label='Baseline')
+    axins.plot(t, nautemp, 'C0', label='NAU')
+
+    x1, x2, y1, y2 = 1000, 2000, 0.07, 0.12
+    axins.set_xlim(x1,x2)
+    axins.set_ylim(y1,y2)
+
+
+    def mark_inset(parent_axes, inset_axes, loc1a=1, loc1b=1, loc2a=2, loc2b=2, **kwargs):
+        rect = TransformedBbox(inset_axes.viewLim, parent_axes.transData)
+
+        pp = BboxPatch(rect, fill=False, **kwargs)
+        parent_axes.add_patch(pp)
+
+        p1 = BboxConnector(inset_axes.bbox, rect, loc1=loc1a, loc2=loc1b, **kwargs)
+        inset_axes.add_patch(p1)
+        p1.set_clip_on(False)
+        p2 = BboxConnector(inset_axes.bbox, rect, loc1=loc2a, loc2=loc2b, **kwargs)
+        inset_axes.add_patch(p2)
+        p2.set_clip_on(False)
+
+        return pp, p1, p2
+
+    mark_inset(ax, axins, loc1a=4, loc1b=1, loc2a=3, loc2b=2, fc="none", ec="0.5")
+    plt.xticks(visible=False)
+    plt.yticks(visible=False)
+
+    plt.savefig('1024_%s.pdf' %fn, transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
+    plt.show()
     
 
 def tsne_graph(weights, fn):
