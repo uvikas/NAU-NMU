@@ -116,7 +116,7 @@ def plot_zooms(naul, basel, fn, s, locc, box):
 
         return pp, p1, p2
 
-    mark_inset(ax, axins, loc1a=2, loc1b=2, loc2a=4, loc2b=4, fc="none", ec="0.5")
+    mark_inset(ax, axins, loc1a=3, loc1b=3, loc2a=1, loc2b=1, fc="none", ec="0.5")
     plt.xticks(visible=False)
     plt.yticks(visible=False)
 
@@ -144,8 +144,10 @@ def tsne_graph(weights, fn):
     
     plt.figure(figsize=(4, 3))
         
-    sc = plt.scatter(tsne_res[:, 0], tsne_res[:, 1], c=col, alpha=1.0, cmap='nipy_spectral')
-    plt.colorbar(pad=0.0)
+    sc = plt.scatter(tsne_res[:, 0], tsne_res[:, 1], c=col, alpha=1.0, cmap='jet')
+    cbar = plt.colorbar(pad=0.01, ticks=[0, 64, 128, 192, 255])
+    #plt.rcParams["font.family"] = "Courier New"
+    cbar.ax.set_yticklabels(['0x00', '0x40', '0x80', '0xc0', '0xff'], fontname="Courier New")
     plt.savefig('tsne_%s.pdf' %fn, transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
     
     #fig1, ax1 = plt.subplots(figsize=(10, 6))
