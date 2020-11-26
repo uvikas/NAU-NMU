@@ -15,10 +15,10 @@ epoch_stop=2000
 plt.rcParams["font.family"] = "Times New Roman"
 plt.rcParams["legend.handlelength"] = 4.0
 
-plt.rc('xtick', labelsize=14)
-plt.rc('ytick', labelsize=14)
+plt.rc('xtick', labelsize=24)
+plt.rc('ytick', labelsize=24)
 
-plt.rc('axes', labelsize=14)
+plt.rc('axes', labelsize=24)
 
 
 def plot_graph(naul, basel, fn):
