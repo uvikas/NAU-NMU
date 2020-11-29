@@ -203,7 +203,7 @@ def bar_graph_ex():
     
 
     Baseline = [0.01057, 0.01031, 0.01005]    # 0.576
-    NAU = [0.00912, 0.00626, 0.00483]         # 0.983
+    NAU = [0.00912, 0.00626, 0.00383]         # 0.983
     
     #Baseline = [0.02427, 0.02177 , 0.01949]
     #NAU = [0.00824, 0.00759, 0.00454]
@@ -234,7 +234,7 @@ def bar_graph_ex():
     plt.ylabel('MSE Loss', fontsize=20)
 
     #plt.show()
-    plt.savefig('2Layer_Bar.pdf', transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
+    plt.savefig('3Layer_Bar.pdf', transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
 
     fig_legend.legend((ax1, ax2), sys, loc='upper center', ncol=3, frameon=False, handlelength=6,
     fontsize=18)
