@@ -15,10 +15,10 @@ epoch_stop=2000
 plt.rcParams["font.family"] = "Times New Roman"
 plt.rcParams["legend.handlelength"] = 4.0
 
-plt.rc('xtick', labelsize=14)
-plt.rc('ytick', labelsize=14)
+plt.rc('xtick', labelsize=24)
+plt.rc('ytick', labelsize=24)
 
-plt.rc('axes', labelsize=14)
+plt.rc('axes', labelsize=24)
 
 
 def plot_graph(naul, basel, fn):
@@ -91,7 +91,10 @@ def plot_zooms(naul, basel, fn, s, locc, box):
     plt.ylim(0, 0.3)
     plt.xlabel('Epochs')
     plt.ylabel('MSE Loss')
-
+    
+    axes = plt.gca()
+    axes.yaxis.grid(True, ls='--')
+    
     axins = zoomed_inset_axes(ax, s, loc=6, bbox_to_anchor=locc)
     axins.plot(t, basetemp, 'C3', label='Baseline')
     axins.plot(t, nautemp, 'C0', label='NAU')
@@ -116,10 +119,10 @@ def plot_zooms(naul, basel, fn, s, locc, box):
 
         return pp, p1, p2
 
-    mark_inset(ax, axins, loc1a=3, loc1b=3, loc2a=1, loc2b=1, fc="none", ec="0.5")
+    mark_inset(ax, axins, loc1a=2, loc1b=2, loc2a=4, loc2b=4, fc="none", ec="0.5")
     plt.xticks(visible=False)
     plt.yticks(visible=False)
-
+    
     plt.savefig('zooms/1024_%s.pdf' %fn, transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
     #plt.show()
     
