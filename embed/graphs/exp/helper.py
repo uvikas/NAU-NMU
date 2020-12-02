@@ -89,6 +89,75 @@ def plot_zooms(naul, basel, fn, s, locc, box):
     ax.plot(t, nautemp, 'C0', label='NAU')
     
     plt.ylim(0, 0.3)
+    plt.xlim(0, 2400)
+    plt.xlabel('Epochs')
+    plt.ylabel('MSE Loss')
+    
+    xs = [2000, 2000]
+    ys = [basetemp[len(basetemp)-1], nautemp[len(nautemp)-1]]
+    
+    plt.scatter([2000], [basetemp[len(basetemp)-1].item()], c='C3')
+    plt.scatter([2000], [nautemp[len(nautemp)-1].item()], c='C0')
+        
+    plt.annotate("%.3f" %float(basetemp[len(basetemp)-1].item()), (2000, basetemp[len(basetemp)-1]), textcoords="offset points", xytext=(30, 0), ha='center', c='C3', fontsize=22)
+    plt.annotate("%.3f" %float(nautemp[len(nautemp)-1].item()), (2000, nautemp[len(nautemp)-1]), textcoords="offset points", xytext=(30, -10), ha='center', c='C0', fontsize=22)
+    
+    axes = plt.gca()
+    axes.yaxis.grid(True, ls='--')
+    
+    axins = zoomed_inset_axes(ax, s, loc=6, bbox_to_anchor=locc)
+    axins.plot(t, basetemp, 'C3', label='Baseline')
+    axins.plot(t, nautemp, 'C0', label='NAU')
+
+    x1, x2, y1, y2 = box
+    axins.set_xlim(x1,x2)
+    axins.set_ylim(y1,y2)
+
+
+    def mark_inset(parent_axes, inset_axes, loc1a=1, loc1b=1, loc2a=2, loc2b=2, **kwargs):
+        rect = TransformedBbox(inset_axes.viewLim, parent_axes.transData)
+
+        pp = BboxPatch(rect, fill=False, **kwargs)
+        parent_axes.add_patch(pp)
+
+        p1 = BboxConnector(inset_axes.bbox, rect, loc1=loc1a, loc2=loc1b, **kwargs)
+        inset_axes.add_patch(p1)
+        p1.set_clip_on(False)
+        p2 = BboxConnector(inset_axes.bbox, rect, loc1=loc2a, loc2=loc2b, **kwargs)
+        inset_axes.add_patch(p2)
+        p2.set_clip_on(False)
+
+        return pp, p1, p2
+
+    mark_inset(ax, axins, loc1a=2, loc1b=2, loc2a=4, loc2b=4, fc="none", ec="0.5")
+    plt.xticks(visible=False)
+    plt.yticks(visible=False)
+    
+    plt.savefig('point_zooms/1024_%s.pdf' %fn, transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
+    #plt.show()
+    
+    
+    """
+    linear 2.5 (200, 290) (1750, 2000, 0.07, 0.12) loc1a=3, loc1b=3, loc2a=1, loc2b=1
+    
+    
+    
+    
+    """
+
+def plot_zooms_only(naul, basel, fn, s, locc, box):
+
+    t = np.arange(epoch_stop-10)
+    basetemp = basel[(-epoch_stop+10):]
+    basetemp[0] = 0.5
+    nautemp = naul[(-epoch_stop+10):]
+    nautemp[0] = 0.5
+
+    fig, ax = plt.subplots()
+    ax.plot(t, basetemp, 'C3', label='Baseline')
+    ax.plot(t, nautemp, 'C0', label='NAU')
+    
+    plt.ylim(0, 0.3)
     plt.xlabel('Epochs')
     plt.ylabel('MSE Loss')
     
@@ -125,15 +194,7 @@ def plot_zooms(naul, basel, fn, s, locc, box):
     
     plt.savefig('zooms/1024_%s.pdf' %fn, transparent=True, bbox_inches='tight', pad_inches=0, dpi=200)
     #plt.show()
-    
-    
-    """
-    linear 2.5 (200, 290) (1750, 2000, 0.07, 0.12) loc1a=3, loc1b=3, loc2a=1, loc2b=1
-    
-    
-    
-    
-    """
+
 
 def tsne_graph(weights, fn):
     plt.clf()
