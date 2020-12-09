@@ -1,2 +1,0 @@
-Dimensions,Activation,Total Memory Size (MB),Final NAU Loss,Final Baseline Loss,Final NAU Reg Loss,NAU-Baseline,NAU Training Time (sec),Baseline Training Time (sec)
-2->512->2->1,ReLU6,0.272444,0.04939144849777222,0.10653438419103622,0.0701972022652626,-0.05714293569326401,20.781548976898193,18.91667652130127
