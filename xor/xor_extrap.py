@@ -1175,9 +1175,9 @@ model = NAU(
 )
 """
 
-def nau_dataset_gen(max_num, batch_size):
+def nau_dataset_gen(min_num, max_num, batch_size):
 
-    pairs = torch.randint(max_num, (batch_size, 2))
+    pairs = torch.randint(low=min_num, high=max_num, size=(batch_size, 2))
     #sums = torch.sum(pairs, dim=1) % 256
     sums = pairs[:, 0] ^ pairs[:, 1]
     sums = sums.reshape(-1, 1).float() 
@@ -1261,7 +1261,7 @@ def train_nau(model, epochs):
             
             #print(epoch_i, mini, loss_train.item())
 
-            x_test, t_test = dataset_gen(128, BATCH_SIZE)
+            x_test, t_test = nau_dataset_gen(65, 128, BATCH_SIZE)
             y_test = model(x_test)
             loss_extra = criterion(y_test, t_test)
             mini_batch_extra.append(loss_extra)
@@ -1539,9 +1539,9 @@ class Baseline(nn.Module):
 
 
 
-def dataset_gen(max_num, batch_size):
+def dataset_gen(min_num, max_num, batch_size):
 
-    pairs = torch.randint(max_num, (batch_size, 2))
+    pairs = torch.randint(low=min_num, high=max_num, size=(batch_size, 2))
     #sums = torch.sum(pairs, dim=1) % 256
     sums = pairs[:, 0] ^ pairs[:, 1]
     sums = sums.reshape(-1, 1).float() 
@@ -1571,7 +1571,7 @@ def train_baseline(model, epochs):
 
             optimizer.zero_grad()
 
-            x_train, t_train = dataset_gen(64, BATCH_SIZE)
+            x_train, t_train = dataset_gen(0, 64, BATCH_SIZE)
             y_train = model(x_train)
             loss = criterion(y_train, t_train)
 
@@ -1583,7 +1583,7 @@ def train_baseline(model, epochs):
             loss.backward()
             optimizer.step()
 
-            x_test, t_test = dataset_gen(128, BATCH_SIZE)
+            x_test, t_test = dataset_gen(65, 128, BATCH_SIZE)
             y_test = model(x_test)
             loss_extra = criterion(y_test, t_test)
             mini_batch_extra.append(loss_extra)
@@ -1651,7 +1651,7 @@ def list2csv(l):
     st += "1"
     return st
 
-act_functions = ['linear', 'GELU', 'ReLU', 'Sigmoid','ELU', 'Tanh', 'ReLU6','LeakyReLU', 'RandReLU', 'SELU', 'CELU', 'Softplus', 'Hardshrink', 'Hardsigmoid' ,'Hardtanh', 'Hardswish', 'Tanhshrink']
+act_functions = ['GELU', 'ReLU', 'Sigmoid','ELU', 'Tanh', 'ReLU6','LeakyReLU', 'RandReLU', 'SELU', 'CELU', 'Softplus', 'Hardshrink', 'Hardsigmoid' ,'Hardtanh', 'Hardswish', 'Tanhshrink']
 num_layers = [1]
 hidden_dim = [1024]
 #configs = [('ReLU', [8]),('Softplus', [8]),('ReLU6', [16]),('Softplus', [16]),('Softplus', [32]),('Softplus', [64]),('Tanh', [64]),('Softplus', [128]), ('Tanh', [128]), ('Softplus', [256]), ('Tanh', [256]), ('Softplus', [512]), ('Tanh', [512]), ('Softplus', [1024]),
@@ -1664,24 +1664,19 @@ hidden_dim = [1024]
 configs = [[1024]]
 
 epoch_stop = 3000
-"""
 f = open('data.csv', 'a')
 
-fields = ['Dimensions', 'Activation',
-        'Total Memory Size (MB)',
-        'Final NAU Loss',
-        'Final Baseline Loss',
-        'NAU-Baseline',
-        'NAU Training Time (sec)',
-        'Baseline Training Time (sec)']
+fields = ['dim', 'final nau loss', 'final nau_extrap loss', 'final base loss', 'final base_extrap loss']
 
 
 writer = csv.DictWriter(f, fieldnames=fields, delimiter=',')
 writer.writeheader()
-"""
 
 baselineloss = []
 nauloss = []
+
+baselineextra = []
+nauextra = []
 
 baselineembed = []
 nauembed = []
@@ -1694,6 +1689,20 @@ for act in act_functions:
             print("Hidden Dims:", i)
             print("Activation:", act)
 
+            
+
+            print("\nTraining NAU...")
+            nau_start = time.time()
+            nau = NAU(i, act, unit_name=LAYER_TYPE, input_size=INPUT_SIZE, hidden_size=HIDDEN_SIZE, nac_oob=OOB_MODE, regualizer_shape=REGUALIZER_SHAPE, regualizer_z=REGUALIZER_Z, mnac_epsilon=MNAC_EPSILON, writer=summary_writer.every(1000).verbose(VERBOSE), nac_mul=NAC_MUL)
+            nau_loss, nau_extra = train_nau(nau, epoch_stop)
+            nau_loss = nau_loss[:epoch_stop-5]
+            nau_extra = nau_extra[:epoch_stop-5]
+            nau_end = time.time()
+            
+            nauloss.append(nau_loss)
+            nauextra.append(nau_extra)
+            nauembed.append(list(nau.parameters())[0].detach().numpy())
+            
             print("\nTraining Baseline...")
             base_start = time.time()
             baseline = Baseline(i, act)
@@ -1703,17 +1712,11 @@ for act in act_functions:
             base_end = time.time()
 
             baselineloss.append(base_loss)
+            baselineextra.append(base_extra)
             baselineembed.append(list(baseline.parameters())[0].detach().numpy())
 
-            print("\nTraining NAU...")
-            nau_start = time.time()
-            nau = NAU(i, act, unit_name=LAYER_TYPE, input_size=INPUT_SIZE, hidden_size=HIDDEN_SIZE, nac_oob=OOB_MODE, regualizer_shape=REGUALIZER_SHAPE, regualizer_z=REGUALIZER_Z, mnac_epsilon=MNAC_EPSILON, writer=summary_writer.every(1000).verbose(VERBOSE), nac_mul=NAC_MUL)
-            nau_loss = train_nau(nau, epoch_stop)
-            nau_loss = nau_loss[:epoch_stop-5]
-            nau_end = time.time()
-            
-            nauloss.append(nau_loss)
-            nauembed.append(list(nau.parameters())[0].detach().numpy())
+
+
 
             t = np.arange(epoch_stop-5)
             plt.plot(t, base_loss, 'r', label='Baseline')
@@ -1727,15 +1730,15 @@ for act in act_functions:
             plt.savefig('xor_extrap/%s%s' %(list2fn(i), act))
             plt.clf()
             
-            """
-            writer.writerow({'Dimensions': list2csv(i), 'Activation': act,
-            'Total Memory Size (MB)': sum(baseline.get_model_size())/8000000.0,
-            'Final NAU Loss':str(nau_loss[len(nau_loss)-1].item()),
-            'Final Baseline Loss':str(base_loss[len(base_loss)-1].item()),
-            'NAU-Baseline': str(nau_loss[len(nau_loss)-1].item() - base_loss[len(base_loss)-1].item()),
-            'NAU Training Time (sec)':str(nau_end - nau_start),
-            'Baseline Training Time (sec)':str(base_end - base_start)})
-            """
+            
+            writer.writerow({'dim': i,
+                            'final nau loss': nau_loss[len(nau_loss)-1].item(),
+                            'final nau_extrap loss': nau_extra[len(nau_extra)-1].item(),
+                            'final base loss': base_loss[len(base_loss)-1].item(),
+                            'final base_extrap loss': base_extra[len(base_extra)-1].item()
+                            })
+            
+# fields = ['dim', 'final nau loss', 'final nau_extrap loss', 'final base loss', 'final base_extrap loss']
 
 #f.close()
 
