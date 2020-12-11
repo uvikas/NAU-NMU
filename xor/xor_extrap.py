@@ -1141,7 +1141,7 @@ NO_CUDA=False
 NAME_PREFIX='NAU'
 REMOVE_EXISTING_DATA=True
 VERBOSE=False
-MINI_BATCH_SIZE=16
+MINI_BATCH_SIZE=4
 
 summary_writer = SummaryWriter(
         'NAU',
@@ -1651,20 +1651,23 @@ def list2csv(l):
     st += "1"
     return st
 
-act_functions = ['GELU', 'ReLU', 'Sigmoid','ELU', 'Tanh', 'ReLU6','LeakyReLU', 'RandReLU', 'SELU', 'CELU', 'Softplus', 'Hardshrink', 'Hardsigmoid' ,'Hardtanh', 'Hardswish', 'Tanhshrink']
+act_functions = ['Sigmoid','ELU']
+
+#act_functions = ['GELU', 'ReLU', 'Sigmoid','ELU', 'Tanh', 'ReLU6','LeakyReLU', 'RandReLU', 'SELU', 'CELU', 'Softplus', 'Hardshrink', 'Hardsigmoid' ,'Hardtanh', 'Hardswish', 'Tanhshrink']
+
 num_layers = [1]
 hidden_dim = [1024]
 
 configs = [[1024]]
 
-epoch_stop = 3000
-f = open('extrap.csv', 'a')
+epoch_stop = 1500
+#f = open('extrap.csv', 'a')
 
-fields = ['act', 'final nau loss', 'final nau_extrap loss', 'final base loss', 'final base_extrap loss']
+#fields = ['act', 'final nau loss', 'final nau_extrap loss', 'final base loss', 'final base_extrap loss']
 
-
-writer = csv.DictWriter(f, fieldnames=fields, delimiter=',')
-writer.writeheader()
+#
+#writer = csv.DictWriter(f, fieldnames=fields, delimiter=',')
+#writer.writeheader()
 
 baselineloss = []
 nauloss = []
@@ -1677,6 +1680,12 @@ nauembed = []
 
 
 for act in act_functions:
+
+            f = open('extrap.csv', 'a')
+            fields = ['act', 'final nau loss', 'final nau_extrap loss', 'final base loss', 'final base_extrap loss']
+            writer = csv.DictWriter(f, fieldnames=fields, delimiter=',')
+
+
             i=[1024]
             
             print("-----------------------------------------------------------------------")
@@ -1693,9 +1702,9 @@ for act in act_functions:
             nau_extra = nau_extra[:epoch_stop-5]
             nau_end = time.time()
             
-            nauloss.append(nau_loss)
-            nauextra.append(nau_extra)
-            nauembed.append(list(nau.parameters())[0].detach().numpy())
+            #nauloss.append(nau_loss)
+            #nauextra.append(nau_extra)
+            #nauembed.append(list(nau.parameters())[0].detach().numpy())
             
             print("\nTraining Baseline...")
             base_start = time.time()
@@ -1705,9 +1714,9 @@ for act in act_functions:
             base_extra = base_extra[:epoch_stop-5]
             base_end = time.time()
 
-            baselineloss.append(base_loss)
-            baselineextra.append(base_extra)
-            baselineembed.append(list(baseline.parameters())[0].detach().numpy())
+            #baselineloss.append(base_loss)
+            #baselineextra.append(base_extra)
+            #baselineembed.append(list(baseline.parameters())[0].detach().numpy())
 
 
 
@@ -1716,9 +1725,8 @@ for act in act_functions:
             plt.plot(t, base_loss, 'r', label='Baseline')
             plt.plot(t, base_extra, 'g', label='Baseline Extrap')
             plt.plot(t, nau_loss, 'b', label='NAU')
-            plt.plot(t, nau_extra, 'p', label='NAU Extrap')
+            plt.plot(t, nau_extra, 'y', label='NAU Extrap')
 
-            plt.ylim(0, 0.5)
             plt.legend(loc='upper right')
             plt.title('NAU vs. Baseline, Dim:%s, Act:%s' %(list2string(i), act))
             plt.savefig('xor_extrap/%s%s' %(list2fn(i), act))
@@ -1731,6 +1739,7 @@ for act in act_functions:
                             'final base loss': base_loss[len(base_loss)-1].item(),
                             'final base_extrap loss': base_extra[len(base_extra)-1].item()
                             })
+            f.close()
             
 # fields = ['dim', 'final nau loss', 'final nau_extrap loss', 'final base loss', 'final base_extrap loss']
 
