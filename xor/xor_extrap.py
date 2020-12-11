@@ -1654,19 +1654,13 @@ def list2csv(l):
 act_functions = ['GELU', 'ReLU', 'Sigmoid','ELU', 'Tanh', 'ReLU6','LeakyReLU', 'RandReLU', 'SELU', 'CELU', 'Softplus', 'Hardshrink', 'Hardsigmoid' ,'Hardtanh', 'Hardswish', 'Tanhshrink']
 num_layers = [1]
 hidden_dim = [1024]
-#configs = [('ReLU', [8]),('Softplus', [8]),('ReLU6', [16]),('Softplus', [16]),('Softplus', [32]),('Softplus', [64]),('Tanh', [64]),('Softplus', [128]), ('Tanh', [128]), ('Softplus', [256]), ('Tanh', [256]), ('Softplus', [512]), ('Tanh', [512]), ('Softplus', [1024]),
-#    ('Tanh', [1024]), ('GELU', [4]), ('GELU', [8]), ('GELU', [16]), ('GELU', [32]), ('GELU', [64]), ('GELU', [128]), ('GELU', [256]), ('GELU', [512]), ('GELU', [1024])]
-
-#configs = [('linear', [1024]), ('Softplus', [1024])]
-
-#configs = [[1], [1024], [1024, 1024], [1], [512], [512, 512], [1], [256], [256, 256]]
 
 configs = [[1024]]
 
 epoch_stop = 3000
-f = open('data.csv', 'a')
+f = open('extrap.csv', 'a')
 
-fields = ['dim', 'final nau loss', 'final nau_extrap loss', 'final base loss', 'final base_extrap loss']
+fields = ['act', 'final nau loss', 'final nau_extrap loss', 'final base loss', 'final base_extrap loss']
 
 
 writer = csv.DictWriter(f, fieldnames=fields, delimiter=',')
@@ -1731,7 +1725,7 @@ for act in act_functions:
             plt.clf()
             
             
-            writer.writerow({'dim': i,
+            writer.writerow({'act': act,
                             'final nau loss': nau_loss[len(nau_loss)-1].item(),
                             'final nau_extrap loss': nau_extra[len(nau_extra)-1].item(),
                             'final base loss': base_loss[len(base_loss)-1].item(),
@@ -1740,5 +1734,5 @@ for act in act_functions:
             
 # fields = ['dim', 'final nau loss', 'final nau_extrap loss', 'final base loss', 'final base_extrap loss']
 
-#f.close()
+f.close()
 
