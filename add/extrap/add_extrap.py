@@ -494,7 +494,7 @@ class GeneralizedLayer(ExtendedTorchModule):
 class NAU(ExtendedTorchModule):
     UNIT_NAMES = GeneralizedLayer.UNIT_NAMES
 
-    def __init__(self, hidden_dims, act_name, unit_name='ReRegualizedLinearNAC', input_size=512, hidden_size=2, writer=None, first_layer=None, nac_mul='none', eps=1e-7, **kwags):
+    def __init__(self, hidden_dims, act_name, embeddings=None, unit_name='ReRegualizedLinearNAC', input_size=512, hidden_size=2, writer=None, first_layer=None, nac_mul='none', eps=1e-7, **kwags):
         super().__init__('network', writer=writer, **kwags)
         self.unit_name = unit_name
         self.input_size = input_size
@@ -507,6 +507,9 @@ class NAU(ExtendedTorchModule):
             unit_name_1 = unit_name
         
         self.embed  = nn.Embedding(256, 256)
+        
+        if embeddings != None:
+            self.embed = nn.Embedding.from_pretrained(embeddings)
 
         #self.act1 = nn.ReLU()
         self.act_name = act_name
@@ -683,7 +686,7 @@ THIS_DIR = path.dirname(path.realpath(__file__))
 if 'TENSORBOARD_DIR' in os.environ:
     TENSORBOARD_DIR = os.environ['TENSORBOARD_DIR']
 else:
-    TENSORBOARD_DIR = path.join(THIS_DIR, '../../tensorboard')
+    TENSORBOARD_DIR = path.join(THIS_DIR, '../../../tensorboard')
 
 class SummaryWriterNamespaceNoLoggingScope:
     def __init__(self, writer):
@@ -961,17 +964,12 @@ class SimpleFunctionDatasetFork(torch.utils.data.Dataset):
 
         #print("START")
         #print(embed)
-        pairs = torch.randint(64, (batch_size, 2))
+        pairs = torch.randint(256, (batch_size, 2))
         #print(pairs[0])
         #sums = torch.sum(pairs, dim=1) % 256
         sums = pairs[:, 0] + pairs[:, 1]
         sums = sums.reshape(-1, 1).float()
         sums = (sums-0) / 256.
-
-        extrapairs = torch.randint(128, (batch_size, 2))
-        extrasums = extrapairs[:, 0] + extrapairs[:, 1]
-        extrasums = extrasums.reshape(-1, 1).float()
-        extrasums = (extrasums-0) / 256.
 
         #print(pairs[0])
 
@@ -1261,14 +1259,14 @@ def train_nau(model, epochs):
             
             #print(epoch_i, mini, loss_train.item())
 
-            x_test, t_test = nau_dataset_gen(65, 128, BATCH_SIZE)
-            y_test = model(x_test)
-            loss_extra = criterion(y_test, t_test)
-            mini_batch_extra.append(loss_extra)
+            #x_test, t_test = nau_dataset_gen(129, 255, BATCH_SIZE)
+            #y_test = model(x_test)
+            #loss_extra = criterion(y_test, t_test)
+            #mini_batch_extra.append(loss_extra)
             
         
         losses.append(sum(mini_batch_loss)/len(mini_batch_loss))
-        extra.append(sum(mini_batch_extra)/len(mini_batch_extra))
+        #extra.append(sum(mini_batch_extra)/len(mini_batch_extra))
         if(epoch_i % 500 == 0):
             print('train %d: %.5f, extra: %.5f' % (epoch_i, sum(mini_batch_loss)/len(mini_batch_loss), sum(mini_batch_extra)/len(mini_batch_extra)))
 
@@ -1448,13 +1446,16 @@ BASELINE
 """
 
 class Baseline(nn.Module):
-    def __init__(self, hidden_dim, act_name, input_size=2, output_size=1):
+    def __init__(self, hidden_dim, act_name, embeddings=None, input_size=2, output_size=1):
         super(Baseline, self).__init__()
 
         self.act_name = act_name
 
-        self.embed = nn.Embedding(256,256)
+        self.embed = nn.Embedding(256, 256)
         
+        if embeddings != None:
+            self.embed = nn.Embedding.from_pretrained(embeddings)
+
         self.linears = []
         self.acts = []
         
@@ -1570,7 +1571,7 @@ def train_baseline(model, epochs):
 
             optimizer.zero_grad()
 
-            x_train, t_train = dataset_gen(0, 64, BATCH_SIZE)
+            x_train, t_train = dataset_gen(0, 256, BATCH_SIZE)
             y_train = model(x_train)
             loss = criterion(y_train, t_train)
 
@@ -1582,13 +1583,13 @@ def train_baseline(model, epochs):
             loss.backward()
             optimizer.step()
 
-            x_test, t_test = dataset_gen(65, 128, BATCH_SIZE)
-            y_test = model(x_test)
-            loss_extra = criterion(y_test, t_test)
-            mini_batch_extra.append(loss_extra)
+            #x_test, t_test = dataset_gen(129, 255, BATCH_SIZE)
+            #y_test = model(x_test)
+            #loss_extra = criterion(y_test, t_test)
+            #mini_batch_extra.append(loss_extra)
 
         losses.append(sum(mini_batch_loss) / len(mini_batch_loss))
-        extra.append(sum(mini_batch_extra) / len(mini_batch_extra))
+        #extra.append(sum(mini_batch_extra) / len(mini_batch_extra))
         if(epoch % 500 == 0):
             print('train %d: %.5f\t extra: %.5f' % (epoch, sum(mini_batch_loss)/len(mini_batch_loss), sum(mini_batch_extra)/len(mini_batch_extra)))
 
@@ -1687,15 +1688,13 @@ for act in act_functions:
 
             i=[1024]
             
-            print("-----------------------------------------------------------------------")
+            #print("Training NAU & Baseline FULLY with full input range")
             print("Hidden Dims:", i)
             print("Activation:", act)
 
-            
-
             print("\nTraining NAU...")
             nau_start = time.time()
-            nau = NAU(i, act, unit_name=LAYER_TYPE, input_size=INPUT_SIZE, hidden_size=HIDDEN_SIZE, nac_oob=OOB_MODE, regualizer_shape=REGUALIZER_SHAPE, regualizer_z=REGUALIZER_Z, mnac_epsilon=MNAC_EPSILON, writer=summary_writer.every(1000).verbose(VERBOSE), nac_mul=NAC_MUL)
+            nau = NAU(i, act, embeddings=None, unit_name=LAYER_TYPE, input_size=INPUT_SIZE, hidden_size=HIDDEN_SIZE, nac_oob=OOB_MODE, regualizer_shape=REGUALIZER_SHAPE, regualizer_z=REGUALIZER_Z, mnac_epsilon=MNAC_EPSILON, writer=summary_writer.every(1000).verbose(VERBOSE), nac_mul=NAC_MUL)
             nau_loss, nau_extra = train_nau(nau, epoch_stop)
             nau_loss = nau_loss[:epoch_stop-5]
             nau_extra = nau_extra[:epoch_stop-5]
@@ -1707,7 +1706,7 @@ for act in act_functions:
             
             print("\nTraining Baseline...")
             base_start = time.time()
-            baseline = Baseline(i, act)
+            baseline = Baseline(i, act, embeddings=None)
             base_loss, base_extra = train_baseline(baseline, epoch_stop)
             base_loss = base_loss[:epoch_stop-5]
             base_extra = base_extra[:epoch_stop-5]
@@ -1732,6 +1731,7 @@ for act in act_functions:
             plt.clf()
             
             
+            
             #writer.writerow({'act': act,
             #                'final nau loss': nau_loss[len(nau_loss)-1].item(),
             #                'final nau_extrap loss': nau_extra[len(nau_extra)-1].item(),
@@ -1744,3 +1744,16 @@ for act in act_functions:
 
 f.close()
 
+
+
+"""
+RUN 1 (train full)
+Pretrain 3k epochs
+get the embeddings and save them
+
+RUN 2 (train [0, 128], extra [129, 255])
+pull up embeddings from saved file
+run NAU/baseline with saved embeddings
+test extrapolation
+
+"""
