@@ -18,7 +18,7 @@ NAU
 =====================================================================
 """
 
-EMBED_ACT=False
+EMBED_ACT=True
 
 def smooth(y, box_pts):
     box = np.ones(box_pts)/box_pts
@@ -1141,7 +1141,7 @@ NO_CUDA=False
 NAME_PREFIX='NAU'
 REMOVE_EXISTING_DATA=True
 VERBOSE=False
-MINI_BATCH_SIZE=4
+MINI_BATCH_SIZE=8
 
 summary_writer = SummaryWriter(
         'NAU',
@@ -1652,14 +1652,14 @@ def list2csv(l):
 
 #act_functions = ['GELU', 'ReLU', 'Sigmoid','ELU', 'Tanh', 'ReLU6','LeakyReLU', 'RandReLU', 'SELU', 'CELU', 'Softplus', 'Hardshrink', 'Hardsigmoid' ,'Hardtanh', 'Hardswish', 'Tanhshrink']
 
-act_functions = ['Hardswish', 'Tanhshrink']
+act_functions = ['Softplus']
 
 num_layers = [1]
 hidden_dim = [1024]
 
 configs = [[1024]]
 
-epoch_stop = 1500
+epoch_stop = 1000
 #f = open('extrap.csv', 'a')
 
 #fields = ['act', 'final nau loss', 'final nau_extrap loss', 'final base loss', 'final base_extrap loss']
@@ -1701,9 +1701,9 @@ for act in act_functions:
             nau_extra = nau_extra[:epoch_stop-5]
             nau_end = time.time()
             
-            #nauloss.append(nau_loss)
-            #nauextra.append(nau_extra)
-            #nauembed.append(list(nau.parameters())[0].detach().numpy())
+            nauloss.append(nau_loss)
+            nauextra.append(nau_extra)
+            nauembed.append(list(nau.parameters())[0].detach().numpy())
             
             print("\nTraining Baseline...")
             base_start = time.time()
@@ -1713,9 +1713,9 @@ for act in act_functions:
             base_extra = base_extra[:epoch_stop-5]
             base_end = time.time()
 
-            #baselineloss.append(base_loss)
-            #baselineextra.append(base_extra)
-            #baselineembed.append(list(baseline.parameters())[0].detach().numpy())
+            baselineloss.append(base_loss)
+            baselineextra.append(base_extra)
+            baselineembed.append(list(baseline.parameters())[0].detach().numpy())
 
 
 
@@ -1728,16 +1728,16 @@ for act in act_functions:
 
             plt.legend(loc='upper right')
             plt.title('NAU vs. Baseline, Dim:%s, Act:%s' %(list2string(i), act))
-            plt.savefig('%s%s' %(list2fn(i), act))
+            plt.savefig('%s%s_e' %(list2fn(i), act))
             plt.clf()
             
             
-            writer.writerow({'act': act,
-                            'final nau loss': nau_loss[len(nau_loss)-1].item(),
-                            'final nau_extrap loss': nau_extra[len(nau_extra)-1].item(),
-                            'final base loss': base_loss[len(base_loss)-1].item(),
-                            'final base_extrap loss': base_extra[len(base_extra)-1].item()
-                            })
+            #writer.writerow({'act': act,
+            #                'final nau loss': nau_loss[len(nau_loss)-1].item(),
+            #                'final nau_extrap loss': nau_extra[len(nau_extra)-1].item(),
+            #                'final base loss': base_loss[len(base_loss)-1].item(),
+            #                'final base_extrap loss': base_extra[len(base_extra)-1].item()
+            #                })
             f.close()
             
 # fields = ['dim', 'final nau loss', 'final nau_extrap loss', 'final base loss', 'final base_extrap loss']
