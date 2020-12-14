@@ -21,9 +21,23 @@ NAU
 EMBED_ACT=True
 
 def smooth(y, box_pts):
+    if y == []:
+        return None
     box = np.ones(box_pts)/box_pts
     y_smooth = np.convolve(y, box, mode='same')
     return y_smooth
+
+def dataset_gen(min_num, max_num, batch_size):
+
+    pairs = torch.randint(low=min_num, high=max_num, size=(batch_size, 2))
+    #sums = torch.sum(pairs, dim=1) % 256
+    sums = pairs[:, 0] + pairs[:, 1]
+    sums = sums.reshape(-1, 1).float()
+    sums = (sums-0) / 256.
+    return (pairs, sums)
+
+
+
 
 torch.manual_seed(0)
 
@@ -494,7 +508,7 @@ class GeneralizedLayer(ExtendedTorchModule):
 class NAU(ExtendedTorchModule):
     UNIT_NAMES = GeneralizedLayer.UNIT_NAMES
 
-    def __init__(self, hidden_dims, act_name, embeddings=None, unit_name='ReRegualizedLinearNAC', input_size=512, hidden_size=2, writer=None, first_layer=None, nac_mul='none', eps=1e-7, **kwags):
+    def __init__(self, hidden_dims, act_name, embeddings=None, pretr=False, unit_name='ReRegualizedLinearNAC', input_size=512, hidden_size=2, writer=None, first_layer=None, nac_mul='none', eps=1e-7, **kwags):
         super().__init__('network', writer=writer, **kwags)
         self.unit_name = unit_name
         self.input_size = input_size
@@ -508,7 +522,7 @@ class NAU(ExtendedTorchModule):
         
         self.embed  = nn.Embedding(256, 256)
         
-        if embeddings != None:
+        if pretr:
             self.embed = nn.Embedding.from_pretrained(embeddings)
 
         #self.act1 = nn.ReLU()
@@ -964,12 +978,23 @@ class SimpleFunctionDatasetFork(torch.utils.data.Dataset):
 
         #print("START")
         #print(embed)
-        pairs = torch.randint(256, (batch_size, 2))
+        #print(self._sample_range[0][0])
+        #print(self._sample_range[0][1])
+        
+        pairs, sums = dataset_gen(self._sample_range[0][0], self._sample_range[0][1], batch_size)
+        
+        #print(pairs.shape)
+        #print(sums.shape)
+        
+        
+        #print(batch_size)
+        
+        #pairs = torch.randint(self._sample_range[0], (batch_size, 2))
         #print(pairs[0])
         #sums = torch.sum(pairs, dim=1) % 256
-        sums = pairs[:, 0] + pairs[:, 1]
-        sums = sums.reshape(-1, 1).float()
-        sums = (sums-0) / 256.
+        #sums = pairs[:, 0] + pairs[:, 1]
+        #sums = sums.reshape(-1, 1).float()
+        #sums = (sums-0) / 256.
 
         #print(pairs[0])
 
@@ -1182,12 +1207,12 @@ def nau_dataset_gen(min_num, max_num, batch_size):
     sums = (sums-0) / 256.
     return (pairs, sums)
 
-def train_nau(model, epochs):
+def train_nau(model, epochs, inter_range, extra_range=None):
     model.reset_parameters()
 
-    dataset_train = iter(dataset.fork(sample_range=INTERPOLATION_RANGE).dataloader(batch_size=BATCH_SIZE))
-    dataset_valid_interpolation_data = next(iter(dataset.fork(sample_range=INTERPOLATION_RANGE).dataloader(batch_size=10000)))
-    dataset_test_extrapolation_data = next(iter(dataset.fork(sample_range=EXTRAPOLATION_RANGE).dataloader(batch_size=10000)))
+    dataset_train = iter(dataset.fork(sample_range=inter_range).dataloader(batch_size=BATCH_SIZE))
+    dataset_valid_interpolation_data = next(iter(dataset.fork(sample_range=inter_range).dataloader(batch_size=10000)))
+    dataset_test_extrapolation_data = next(iter(dataset.fork(sample_range=inter_range).dataloader(batch_size=10000)))
 
     criterion = torch.nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
@@ -1259,16 +1284,21 @@ def train_nau(model, epochs):
             
             #print(epoch_i, mini, loss_train.item())
 
-            #x_test, t_test = nau_dataset_gen(129, 255, BATCH_SIZE)
-            #y_test = model(x_test)
-            #loss_extra = criterion(y_test, t_test)
-            #mini_batch_extra.append(loss_extra)
+            if extra_range != None:
+                x_test, t_test = nau_dataset_gen(extra_range[0], extra_range[1], BATCH_SIZE)
+                y_test = model(x_test)
+                loss_extra = criterion(y_test, t_test)
+                mini_batch_extra.append(loss_extra)
             
         
         losses.append(sum(mini_batch_loss)/len(mini_batch_loss))
-        #extra.append(sum(mini_batch_extra)/len(mini_batch_extra))
+        if extra_range != None:
+            extra.append(sum(mini_batch_extra)/len(mini_batch_extra))
         if(epoch_i % 500 == 0):
-            print('train %d: %.5f, extra: %.5f' % (epoch_i, sum(mini_batch_loss)/len(mini_batch_loss), sum(mini_batch_extra)/len(mini_batch_extra)))
+            if extra_range != None:
+                print('train %d: %.5f, extra: %.5f' % (epoch_i, sum(mini_batch_loss)/len(mini_batch_loss), sum(mini_batch_extra)/len(mini_batch_extra)))
+            else:
+                print('train %d: %.5f' % (epoch_i, sum(mini_batch_loss)/len(mini_batch_loss)))
 
     return (smooth(losses, 5), smooth(extra, 5))
 
@@ -1446,14 +1476,14 @@ BASELINE
 """
 
 class Baseline(nn.Module):
-    def __init__(self, hidden_dim, act_name, embeddings=None, input_size=2, output_size=1):
+    def __init__(self, hidden_dim, act_name, embeddings=None, pretr=False, input_size=2, output_size=1):
         super(Baseline, self).__init__()
 
         self.act_name = act_name
 
         self.embed = nn.Embedding(256, 256)
         
-        if embeddings != None:
+        if pretr:
             self.embed = nn.Embedding.from_pretrained(embeddings)
 
         self.linears = []
@@ -1540,14 +1570,6 @@ class Baseline(nn.Module):
 
 
 
-def dataset_gen(min_num, max_num, batch_size):
-
-    pairs = torch.randint(low=min_num, high=max_num, size=(batch_size, 2))
-    #sums = torch.sum(pairs, dim=1) % 256
-    sums = pairs[:, 0] + pairs[:, 1]
-    sums = sums.reshape(-1, 1).float() 
-    sums = (sums-0) / 256.
-    return (pairs, sums)
 
 
 
@@ -1558,7 +1580,7 @@ BATCH_SIZE=128
 #model = Baseline((100, 50), 'GELU')
 
 
-def train_baseline(model, epochs):
+def train_baseline(model, epochs, inter_range, extra_range=None):
     losses = []
     extra = []
 
@@ -1571,7 +1593,7 @@ def train_baseline(model, epochs):
 
             optimizer.zero_grad()
 
-            x_train, t_train = dataset_gen(0, 256, BATCH_SIZE)
+            x_train, t_train = dataset_gen(inter_range[0], inter_range[1], BATCH_SIZE)
             y_train = model(x_train)
             loss = criterion(y_train, t_train)
 
@@ -1582,17 +1604,24 @@ def train_baseline(model, epochs):
 
             loss.backward()
             optimizer.step()
-
-            #x_test, t_test = dataset_gen(129, 255, BATCH_SIZE)
-            #y_test = model(x_test)
-            #loss_extra = criterion(y_test, t_test)
-            #mini_batch_extra.append(loss_extra)
+            
+            if extra_range != None:
+                x_test, t_test = dataset_gen(129, 255, BATCH_SIZE)
+                y_test = model(x_test)
+                loss_extra = criterion(y_test, t_test)
+                mini_batch_extra.append(loss_extra)
 
         losses.append(sum(mini_batch_loss) / len(mini_batch_loss))
-        #extra.append(sum(mini_batch_extra) / len(mini_batch_extra))
+        if extra_range != None:
+            extra.append(sum(mini_batch_extra) / len(mini_batch_extra))
+        
+        
         if(epoch % 500 == 0):
-            print('train %d: %.5f\t extra: %.5f' % (epoch, sum(mini_batch_loss)/len(mini_batch_loss), sum(mini_batch_extra)/len(mini_batch_extra)))
-
+            if extra_range != None:
+                print('train %d: %.5f\t extra: %.5f' % (epoch, sum(mini_batch_loss)/len(mini_batch_loss), sum(mini_batch_extra)/len(mini_batch_extra)))
+            else:
+                print('train %d: %.5f' % (epoch, sum(mini_batch_loss)/len(mini_batch_loss)))
+    
     return (smooth(losses, 5), smooth(extra, 5))
 
 """
@@ -1660,7 +1689,7 @@ hidden_dim = [1024]
 
 configs = [[1024]]
 
-epoch_stop = 1000
+epoch_stop = 2000
 #f = open('extrap.csv', 'a')
 
 #fields = ['act', 'final nau loss', 'final nau_extrap loss', 'final base loss', 'final base_extrap loss']
@@ -1688,34 +1717,59 @@ for act in act_functions:
 
             i=[1024]
             
-            #print("Training NAU & Baseline FULLY with full input range")
+            print("Training NAU & Baseline FULLY with full input range")
             print("Hidden Dims:", i)
             print("Activation:", act)
 
-            print("\nTraining NAU...")
+
+            print("\nTraining Baseline on inputs [0, 256]...")
+            base_start = time.time()
+            baseline = Baseline(i, act, embeddings=None)
+            base_loss, base_extra = train_baseline(baseline, epoch_stop, [0, 256], extra_range=None)
+            base_loss = base_loss[:epoch_stop-5]
+            #base_extra = base_extra[:epoch_stop-5]
+            base_end = time.time()
+
+            baselineloss.append(base_loss)
+            baselineextra.append(base_extra)
+            baselineembed.append(list(baseline.parameters())[0].detach())
+
+            print("\nTraining NAU on inputs [0, 256] ...")
             nau_start = time.time()
             nau = NAU(i, act, embeddings=None, unit_name=LAYER_TYPE, input_size=INPUT_SIZE, hidden_size=HIDDEN_SIZE, nac_oob=OOB_MODE, regualizer_shape=REGUALIZER_SHAPE, regualizer_z=REGUALIZER_Z, mnac_epsilon=MNAC_EPSILON, writer=summary_writer.every(1000).verbose(VERBOSE), nac_mul=NAC_MUL)
-            nau_loss, nau_extra = train_nau(nau, epoch_stop)
+            nau_loss, nau_extra = train_nau(nau, epoch_stop, [0, 256], extra_range=None)
             nau_loss = nau_loss[:epoch_stop-5]
-            nau_extra = nau_extra[:epoch_stop-5]
+            #nau_extra = nau_extra[:epoch_stop-5]
             nau_end = time.time()
             
             nauloss.append(nau_loss)
             nauextra.append(nau_extra)
-            nauembed.append(list(nau.parameters())[0].detach().numpy())
+            nauembed.append(list(nau.parameters())[0].detach())
             
-            print("\nTraining Baseline...")
+            
+            print("\nTraining Baseline with extrapolation and pretrained embedded dict...")
             base_start = time.time()
-            baseline = Baseline(i, act, embeddings=None)
-            base_loss, base_extra = train_baseline(baseline, epoch_stop)
+            baseline = Baseline(i, act, embeddings=baselineembed[0], pretr=True)
+            base_loss, base_extra = train_baseline(baseline, epoch_stop, [0, 128], extra_range=[129, 256])
             base_loss = base_loss[:epoch_stop-5]
             base_extra = base_extra[:epoch_stop-5]
             base_end = time.time()
 
             baselineloss.append(base_loss)
             baselineextra.append(base_extra)
-            baselineembed.append(list(baseline.parameters())[0].detach().numpy())
+            baselineembed.append(list(baseline.parameters())[0].detach())
 
+            print("\nTraining NAU with extrapolation and pretrained embedded dict...")
+            nau_start = time.time()
+            nau = NAU(i, act, embeddings=nauembed[0], pretr=True, unit_name=LAYER_TYPE, input_size=INPUT_SIZE, hidden_size=HIDDEN_SIZE, nac_oob=OOB_MODE, regualizer_shape=REGUALIZER_SHAPE, regualizer_z=REGUALIZER_Z, mnac_epsilon=MNAC_EPSILON, writer=summary_writer.every(1000).verbose(VERBOSE), nac_mul=NAC_MUL)
+            nau_loss, nau_extra = train_nau(nau, epoch_stop, [0, 128], extra_range=[129, 256])
+            nau_loss = nau_loss[:epoch_stop-5]
+            nau_extra = nau_extra[:epoch_stop-5]
+            nau_end = time.time()
+            
+            nauloss.append(nau_loss)
+            nauextra.append(nau_extra)
+            nauembed.append(list(nau.parameters())[0].detach())
 
 
 
@@ -1729,7 +1783,6 @@ for act in act_functions:
             plt.title('NAU vs. Baseline, Dim:%s, Act:%s' %(list2string(i), act))
             plt.savefig('%s%s_e' %(list2fn(i), act))
             plt.clf()
-            
             
             
             #writer.writerow({'act': act,
